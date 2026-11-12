@@ -17,7 +17,7 @@ ES_CONTINUOUS, ES_SYSTEM_REQUIRED = 0x80000000, 0x00000001
 ctypes.windll.kernel32.SetThreadExecutionState(ES_CONTINUOUS | ES_SYSTEM_REQUIRED)
 proc = psutil.Process(os.getpid())
 Environment_dir = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "C:\\Document_UMONS\\Thèse-Code\\TD3_Minute")
+    os.path.join(os.path.dirname(__file__), "C:\\Document_UMONS\\Thèse-Code\\System_Imbalance\\System-Imbalance")
 )
 sys.path.append(Environment_dir)
 faulthandler.enable(open(os.path.join(Environment_dir, "crash.log"), "ab"))

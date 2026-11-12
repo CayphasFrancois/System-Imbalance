@@ -18,7 +18,7 @@ import faulthandler, psutil
 # ctypes.windll.kernel32.SetThreadExecutionState(ES_CONTINUOUS | ES_SYSTEM_REQUIRED)
 proc = psutil.Process(os.getpid())
 Environment_dir = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "C:\\Document_UMONS\\Thèse-Code\\TD3_Minute")
+    os.path.join(os.path.dirname(__file__), "C:\\Document_UMONS\\Thèse-Code\\System_Imbalance\\System-Imbalance")
 )
 sys.path.append(Environment_dir)
 faulthandler.enable(open(os.path.join(Environment_dir, "crash.log"), "ab"))
@@ -79,10 +79,10 @@ def main():
     penal = 30
 
     # Input training data matrices including warm-up sliding indices blocks
-    path_training = os.path.normpath('./Data_Now/Dataset_Train_2025_2026_Current_SI.csv')
-    path_validation = os.path.normpath('./Data_Now/Dataset_Val_2025_2026_Current_SI.csv')
-    path_test = os.path.normpath('./Data_Now/Dataset_Test_2025_2026_Current_SI.csv') 
-    path_merit_order = os.path.normpath('./Data_Now/merit_parsed.pkl')
+    path_training = os.path.normpath('C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/Dataset_Train_2025_2026_Current_SI.csv')
+    path_validation = os.path.normpath('C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/Dataset_Val_2025_2026_Current_SI.csv')
+    path_test = os.path.normpath('C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/Dataset_Test_2025_2026_Current_SI.csv')
+    path_merit_order = os.path.normpath('C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/merit_parsed.pkl')
 
     print('Importing data + preprocessing (PyTorch Pipeline)...')
     df_train,  df_val,  _, merit_order_dict, mean,std= importdata(path_training, path_validation, path_test, path_merit_order)   
@@ -121,7 +121,7 @@ def main():
     initial_collect_steps = batch_size * 20
     # %% ------- Print & Export Hyperparameters Summary -------
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    save_dir = os.path.join("C:\\Document_UMONS\\Thèse-Code\\TD3_Minute\\RL_agent_min\\TD3\\Runs", f'Run_TD3_PyTorch_min_{timestamp}_EARLY_STOP_S{seed}_TEST')
+    save_dir = os.path.join("C:\\Document_UMONS\\Thèse-Code\\SI_side_repository\\Runs\\Minute\\Runs", f'Run_TD3_PyTorch_min_{timestamp}_EARLY_STOP_S{seed}_TEST')
 
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
