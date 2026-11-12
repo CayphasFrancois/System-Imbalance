@@ -18,7 +18,7 @@ import faulthandler, psutil
 # ctypes.windll.kernel32.SetThreadExecutionState(ES_CONTINUOUS | ES_SYSTEM_REQUIRED)
 proc = psutil.Process(os.getpid())
 Environment_dir = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "C:\\Document_UMONS\\Thèse-Code\\System_Imbalance\\System-Imbalance")
+    os.path.join(os.path.dirname(__file__), "C:\\Document_UMONS\\Thèse-Code\\SI_side_repository")
 )
 sys.path.append(Environment_dir)
 faulthandler.enable(open(os.path.join(Environment_dir, "crash.log"), "ab"))
@@ -121,7 +121,7 @@ def main():
     initial_collect_steps = batch_size * 20
     # %% ------- Print & Export Hyperparameters Summary -------
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    save_dir = os.path.join("C:\\Document_UMONS\\Thèse-Code\\SI_side_repository\\RL_agent_quarter\\TD3\\Runs", f'Run_TD3_PyTorch_{timestamp}_EARLY_STOP_S{seed}_TEST')
+    save_dir = os.path.join("C:\\Document_UMONS\\Thèse-Code\\SI_side_repository\\Runs\\Quarter\\Runs", f'Run_TD3_PyTorch_{timestamp}_EARLY_STOP_S{seed}_TEST')
 
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
