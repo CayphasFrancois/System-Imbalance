@@ -18,7 +18,7 @@ import faulthandler, psutil
 # ctypes.windll.kernel32.SetThreadExecutionState(ES_CONTINUOUS | ES_SYSTEM_REQUIRED)
 proc = psutil.Process(os.getpid())
 Environment_dir = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "C:\\Document_UMONS\\Thèse-Code\\System_Imbalance\\System-Imbalance")
+    os.path.join(os.path.dirname(__file__), "C:\\Document_UMONS\\Thèse-Code\\SI_side_repository")
 )
 sys.path.append(Environment_dir)
 faulthandler.enable(open(os.path.join(Environment_dir, "crash.log"), "ab"))
