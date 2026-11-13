@@ -297,8 +297,8 @@ class Environment:
 
         # Extraction des valeurs sur le bloc de 15 minutes (on prend la moyenne des 15 lignes du fichier minute)
         block_slice = slice(self._current_idx, self._current_idx + 15)
-        self._qh_nrv_list=self._nrv_arr[block_slice]
-        self._qh_si_base_list= self._si_arr[block_slice]
+        self._qh_nrv_list=self._nrv_arr[block_slice].copy()
+        self._qh_si_base_list= self._si_arr[block_slice].copy()
         q_si_mean = float(np.mean(self._si_arr[block_slice]))
 
         q_si_mean_price = q_si_mean - network_charge_MW
