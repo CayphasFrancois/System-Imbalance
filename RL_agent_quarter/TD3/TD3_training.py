@@ -13,22 +13,16 @@ from datetime import datetime
 
 import faulthandler, psutil 
 
-# import ctypes
-# ES_CONTINUOUS, ES_SYSTEM_REQUIRED = 0x80000000, 0x00000001
-# ctypes.windll.kernel32.SetThreadExecutionState(ES_CONTINUOUS | ES_SYSTEM_REQUIRED)
 proc = psutil.Process(os.getpid())
-Result_dir = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "C:\\Document_UMONS\\Thèse-Code\\SI_side_repository"))
-Environment_dir = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "C:\\Document_UMONS\\Thèse-Code\\System_Imbalance\\System_Imbalance\\Environment_quarter"))
+Result_dir = r"C:\\Document_UMONS\\Thèse-Code\\SI_side_repository"
+Environment_dir = r"C:\\Document_UMONS\\Thèse-Code\\System_Imbalance\\System-Imbalance\\Environment_quarter"
 sys.path.append(Result_dir)
+sys.path.append(Environment_dir)
 faulthandler.enable(open(os.path.join(Result_dir, "crash.log"), "ab"))
 
 # --- IMPORTATION DU PIPELINE PYTORCH (Environnements & Prétraitement) ---
-import importlib
-import Environment_quarter
-importlib.reload(Environment_quarter)
-from Environment_quarter import Environment, importdata, collect_data
+import Environment_quarter_initial
+from Environment_quarter_initial import Environment, importdata, collect_data
 from TD3_torch import Agent, set_seed
 
 
