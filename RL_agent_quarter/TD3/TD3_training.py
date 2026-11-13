@@ -20,7 +20,7 @@ proc = psutil.Process(os.getpid())
 Result_dir = os.path.abspath(
     os.path.join(os.path.dirname(__file__), "C:\\Document_UMONS\\Thèse-Code\\SI_side_repository"))
 Environment_dir = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "C:\\Document_UMONS\\Thèse-Code\\System_Imbalance\\System_Imbalance"))
+    os.path.join(os.path.dirname(__file__), "C:\\Document_UMONS\\Thèse-Code\\System_Imbalance\\System_Imbalance\\Environment_quarter"))
 sys.path.append(Result_dir)
 faulthandler.enable(open(os.path.join(Result_dir, "crash.log"), "ab"))
 

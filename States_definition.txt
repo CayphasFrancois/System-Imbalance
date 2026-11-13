@@ -1,0 +1,7 @@
+- Minute : 
+	
+	- Initial : SoC + 6 calendars + 14 x (SI_min_before_battery, ACE, IGCC, NRV_min_after_battery & Price_min_approximation) + 4 x (SI_qh_before_battery, NRV_qh_after_battery & Price_qh) (89 values)
+
+- Quarter : 
+
+	- Initial : SoC + 6 calendars + 4 x (SI_qh_before_battery, NRV_qh_after_battery & Price_qh)   (19 values)
