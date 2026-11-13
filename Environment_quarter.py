@@ -72,6 +72,14 @@ class Environment:
         self.buf_q_nrv = [0.0] * 4
         self.q_si_mean_previous = 0.0
 
+         # Accumulateurs pour le quart d'heure en cours
+        self._qh_si_base_list =[]
+        self._qh_nrv_list = []
+        self.q_si_mean_previous = 0.0
+
+        # Listes temporaires pour stocker les minutes du quart d'heure courant
+        self._qh_inc_dicts = []
+        self._qh_dec_dicts = []
         key0 = int(self._qh_key_int[self._current_idx])
         k_inc = self._nearest_valid_key(self._inc_keys, key0)
         k_dec = self._nearest_valid_key(self._dec_keys, key0)
@@ -144,52 +152,82 @@ class Environment:
     # ---------- Briques de calcul ----------
     @staticmethod
     def _marginal_idx(vols, target):
+    # Indice de la tranche (V_{i-1}, V_i] qui contient le volume demandé (plafonné à la dernière offre)
         return min(int(np.searchsorted(vols, target, side="left")), len(vols) - 1)
-
-    def _get_marginal_price(self, u, nrv_val, flag_type):
-        """
-        flag_type: 1 pour aFRR, 2 pour mFRR.
-        nrv_val: valeur du NRV sur le 1/4h.
-        """
-        if u is None or nrv_val == 0:
+    
+    def _get_max_mfrr_activated(self, u):          # MIP : mFRR la plus chère activée à la hausse
+            pos = [n for n in self._qh_nrv_list if n > 0]
+            if u is None or not pos:
+                return None
+            vols, prices, flags = u
+            i = self._marginal_idx(vols, max(pos))
+            sel = prices[:i + 1][flags[:i + 1] == 2]
+            return float(sel.max()) if sel.size else None
+    
+    def _get_min_mfrr_activated(self, u):          # MDP : mFRR la moins chère activée à la baisse
+        neg = [abs(n) for n in self._qh_nrv_list if n < 0]
+        if u is None or not neg:
             return None
         vols, prices, flags = u
-        target = abs(nrv_val)
-        i = self._marginal_idx(vols, target)
-        sel = prices[:i + 1][flags[:i + 1] == flag_type]
-        if not sel.size:
-            return None
-        return float(sel.max() if nrv_val > 0 else sel.min())
+        i = self._marginal_idx(vols, max(neg))
+        sel = prices[:i + 1][flags[:i + 1] == 2]
+        return float(sel.min()) if sel.size else None
+
+    def _get_weighted_afrr_price(self, inc,dec):
+            
+        num = den = 0.0
+        for nrv in self._qh_nrv_list:
+            if nrv == 0 : 
+                continue 
+            if nrv > 0 :
+                u = inc 
+            else : u = dec
+            if u is None:
+                continue
+            vols, prices, flags = u
+            m = flags == 1
+            if not m.any() :
+                continue
+            va, pa = vols[m], prices[m]
+            w = min(abs(nrv), float(va.max())) 
+            i = self._marginal_idx(va,w)
+            num += w * pa[i]
+            den += w
+        return num / den if den > 0 else None
 
     # ---------- Prix du quart d'heure ----------
-    def _calculate_alpha(self, q_si_mean_now, q_si_mean_previous, price): 
+    def _calculate_alpha (self,q_si_mean_now,q_si_mean_previous,price) : 
         a = 0
         b = 200
         c = 450
         d = 65
 
-        x = (abs(q_si_mean_now) + abs(q_si_mean_previous)) / 2 
+        x = (abs(q_si_mean_now) + abs(q_si_mean_previous))/2 
 
-        if price >= 400: 
+        if price >= 400 : 
             cp = 0
-        elif 400 > price >= 200:
-            cp = (400 - price) / 200
-        elif 200 > price >= 0: 
+        elif 400 > price >=200 :
+            cp = (400-price)/200
+        elif 200 > price >= 0 : 
             cp = 1
-        elif 0 > price >= -200: 
-            cp = (200 + price) / 200
-        else: 
-            cp = 0 
+        elif 0 > price >= -200 : 
+            cp = (200+price)/200
+        else : cp = 0 
 
-        alpha = (a + b / (1 + np.exp((c - x) / d))) * cp
+        alpha = (a + b/(1 + np.exp((c-x)/d)))*cp
+
         return alpha
 
     def _voaa_list(self, inc, dec):
-        up   = float(inc[1].min()) if inc is not None else None   
-        down = float(dec[1].max()) if dec is not None else None   
-        return up, down
+        """VoAA = prix de la 1re offre du merit order, par produit (aFRR=1, mFRR=2) et par direction."""
+        up   = float(inc[1].min()) if inc is not None else None   # 1re offre FRR à la hausse (aFRR+mFRR)
+        down = float(dec[1].max()) if dec is not None else None   # 1re offre FRR à la baisse (aFRR+mFRR)
+
+        return up,down
     
-    def _calculate_quarter_price(self, q_si_mean, q_si_mean_previous, nrv_val, inc, dec):
+    def _calculate_quarter_price(self, q_si_mean,q_si_mean_previous):
+        inc = self._qh_inc_dicts[0] if self._qh_inc_dicts else None
+        dec = self._qh_dec_dicts[0] if self._qh_dec_dicts else None
         up, down = self._voaa_list(inc, dec)
         voaa = [v for v in (up, down) if v is not None]
         if not voaa:
@@ -198,40 +236,33 @@ class Environment:
         floor, cap = max(voaa), min(voaa)
         
         if q_si_mean < -25.0:                                   # MIP (pénurie)
-            if nrv_val>=0:
-                c = [x for x in (floor,
-                                self._get_marginal_price(inc, nrv_val, 2), # mFRR
-                                self._get_marginal_price(inc, nrv_val, 1)) # aFRR
-                    if x is not None]
-            if nrv_val<0 : 
-                c = [x for x in (floor,
-                                self._get_marginal_price(dec, nrv_val, 2), # mFRR
-                                self._get_marginal_price(dec, nrv_val, 1)) # aFRR
-                    if x is not None]
+            c = [x for x in (floor,
+                            self._get_max_mfrr_activated(inc),
+                            self._get_weighted_afrr_price(inc, dec)) if x is not None]
             if not c:
                 return 0.0
             price = float(max(c))
 
-            alpha = self._calculate_alpha(q_si_mean, q_si_mean_previous, price) if abs(q_si_mean) > 150 else 0
-            return price + alpha 
+            if abs (q_si_mean) > 150:
+                alpha = self._calculate_alpha(q_si_mean,q_si_mean_previous,price)
+            else : alpha = 0 
+
+            return (price + alpha) 
 
         elif q_si_mean > 25.0:                                  # MDP (surplus)
-            if nrv_val>=0:
-                c = [x for x in (cap,
-                                self._get_marginal_price(inc, nrv_val, 2), # mFRR
-                                self._get_marginal_price(inc, nrv_val, 1)) # aFRR
-                    if x is not None]
-            if nrv_val<0 : 
-                c = [x for x in (cap,
-                                self._get_marginal_price(dec, nrv_val, 2), # mFRR
-                                self._get_marginal_price(dec, nrv_val, 1)) # aFRR
-                    if x is not None]
+            c = [x for x in (cap,
+                            self._get_min_mfrr_activated(dec),
+                            self._get_weighted_afrr_price(inc, dec)) if x is not None]
+
             if not c:
                 return 0.0
             price = float(min(c))
 
-            alpha = self._calculate_alpha(q_si_mean, q_si_mean_previous, price) if abs(q_si_mean) > 150 else 0
-            return price - alpha
+            if abs (q_si_mean) > 150:
+                alpha = self._calculate_alpha(q_si_mean,q_si_mean_previous,price)
+            else : alpha = 0 
+
+            return (price - alpha)
 
         else:                                                    # zone morte
             return ((floor + cap) / 2.0) if (floor is not None and cap is not None) else 0.0
@@ -251,7 +282,7 @@ class Environment:
         new_soc = np.clip(new_soc, 0.0, 1.0)
         
         fraction_of_max_power = (new_soc - current_soc) * (self._EP_ratio / (1/4))
-
+    
         # Coût de dégradation sur un quart d'heure (15 min)
         cost = 0.0
         if fraction_of_max_power < 0:
@@ -266,19 +297,23 @@ class Environment:
 
         # Extraction des valeurs sur le bloc de 15 minutes (on prend la moyenne des 15 lignes du fichier minute)
         block_slice = slice(self._current_idx, self._current_idx + 15)
+        self._qh_nrv_list=self._nrv_arr[block_slice]
+        self._qh_si_base_list= self._si_arr[block_slice]
         q_si_mean = float(np.mean(self._si_arr[block_slice]))
-        base_nrv_mean = float(np.mean(self._nrv_arr[block_slice]))
 
         q_si_mean_price = q_si_mean - network_charge_MW
-        nrv_new_val = base_nrv_mean + network_charge_MW  
+        for i in range (len(self._qh_nrv_list)):
+            self._qh_nrv_list[i]=self._qh_nrv_list[i]+network_charge_MW
+        q_nrv_mean = float(np.mean(self._qh_nrv_list))
 
         energy_qh_mwh = network_charge_MW * dt_hours 
         
         inc_dict, dec_dict = self._get_merit(self._current_idx)
+        self._qh_inc_dicts.append(inc_dict)
+        self._qh_dec_dicts.append(dec_dict)
 
         # Calcul du prix final du 1/4h basé sur le SI moyen et le NRV moyen/modifié du 1/4h
-        final_qh_price = self._calculate_quarter_price(q_si_mean_price, self.q_si_mean_previous, nrv_new_val, inc_dict, dec_dict)
-        self.qh_prices.append(final_qh_price)
+        final_qh_price = self._calculate_quarter_price(q_si_mean_price, self.q_si_mean_previous)
 
         profit_qh = -energy_qh_mwh * final_qh_price
         reward = profit_qh - cost - penalized
@@ -286,8 +321,12 @@ class Environment:
         # Mise à jour des tampons d'historique (4 derniers quarts d'heure)
         self.buf_q_si.pop(0); self.buf_q_si.append(q_si_mean)
         self.buf_q_price.pop(0); self.buf_q_price.append(final_qh_price)
-        self.buf_q_nrv.pop(0); self.buf_q_nrv.append(nrv_new_val)
+        self.buf_q_nrv.pop(0); self.buf_q_nrv.append(q_nrv_mean)
         self.q_si_mean_previous = q_si_mean_price
+        self._qh_si_base_list =[]
+        self._qh_nrv_list = []
+        self._qh_inc_dicts = []
+        self._qh_dec_dicts = []
 
         # Avancement de 15 indices dans le fichier minute pour atteindre le prochain 1/4h
         self._current_idx += 15

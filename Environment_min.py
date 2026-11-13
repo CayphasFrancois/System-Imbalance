@@ -44,7 +44,6 @@ class Environment:
         self._R = float(bat_replacement_cost)
         self._penalty = float(penalty)
 
-        self._SOC_index = 0 
         self._episode = 0
         self._episode_ended = False
         
@@ -132,6 +131,7 @@ class Environment:
             h[2, :m] = self._igcc_arr[idx]
             h[3, :m] = self._qh_nrv_list[::-1]      # avec effet batterie
             h[4, :m] = self._qh_minutes_price[::-1]
+            
         h = (h - self.mean[:5, None]) / self.std[:5, None]
 
         sel = [0, 3, 4]                             # si, nrv, prix
@@ -298,8 +298,10 @@ class Environment:
 
         action_scalar = float(action.item() if hasattr(action, 'item') else action)
         current_soc = self._observation[0]
-        
-        new_soc = current_soc + (action_scalar * (1/60) * (1/self._EP_ratio))
+
+        # Pas de temps 1min = 1/60 heure
+        dt_hours = 1/60
+        new_soc = current_soc + (action_scalar * dt_hours * (1/self._EP_ratio))
         eps = 1e-6
         penalized = 0.0 if -eps <= new_soc <= 1 + eps else self._penalty
         self._qh_penalty += penalized    
@@ -323,7 +325,7 @@ class Environment:
         si_new_val = base_si - network_charge_MW  
         nrv_new_val = base_nrv_new + network_charge_MW
 
-        energy_min_mwh = network_charge_MW * (1/60)
+        energy_min_mwh = network_charge_MW * dt_hours
         
         inc_dict, dec_dict = self._get_merit(self._current_idx)
         
