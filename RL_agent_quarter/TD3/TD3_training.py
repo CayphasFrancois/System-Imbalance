@@ -2,15 +2,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd 
 import torch as T
-import random
 import time
 import os
 import sys
-import shutil 
 import gc 
 from tqdm import tqdm 
 from datetime import datetime
-
 import faulthandler, psutil 
 
 proc = psutil.Process(os.getpid())
@@ -21,9 +18,10 @@ sys.path.append(Environment_dir)
 faulthandler.enable(open(os.path.join(Result_dir, "crash.log"), "ab"))
 
 # --- IMPORTATION DU PIPELINE PYTORCH (Environnements & Prétraitement) ---
-import Environment_quarter_initial
-from Environment_quarter_initial import Environment, importdata, collect_data
+import Environment_quarter_initial #type:ignore
+from Environment_quarter_initial import Environment, importdata, collect_data #type:ignore
 from TD3_torch import Agent, set_seed
+Environment_type = "Initial"
 
 
 # %% ------- Synchronized Manual Evaluation Loop Interface (PyTorch) -------
@@ -49,7 +47,6 @@ def evaluate_agent(env,agent,num_episodes=None):
         total += ep_profit
         ep_profit_list.append(ep_profit)
         
-
     gc.collect()
     return total / num_episodes,ep_profit_list,state_reward_action_list
 
@@ -69,8 +66,6 @@ def main():
     delta_t = 1/4  # time control interval (h)
     roundtrip_efficiency = 0.9
     battery_replacement_cost = 3e+5 * battery_max_power * EP_ratio
-
-    # window_size = 4
     penal = 30*15
 
     # Input training data matrices including warm-up sliding indices blocks
@@ -81,12 +76,6 @@ def main():
 
     print('Importing data + preprocessing (PyTorch Pipeline)...')
     df_train,  df_val,  _, merit_order_dict, mean,std= importdata(path_training, path_validation, path_test, path_merit_order)   
-    # cols = ["system imbalance", "ace", "igcc", "nrv_new",
-    #         "min_sin","min_cos","h_sin","h_cos","day_sin","day_cos"]
-    # # for name, d in [("train", df_train), ("val", df_val), ("test", df_test)]:
-    # for name, d in [("train", df_train), ("val", df_val)]:
-    #     print(name, d[cols].isna().sum().to_dict())
-    #     print(name, np.isinf(d[cols].select_dtypes('number')).sum().sum(), "inf")
     print('Preprocessed data imported')
 
     # %% -------Hyperparameters-------
@@ -99,8 +88,8 @@ def main():
 
     gamma = 0.99
     tau = 5*1e-3
-    actor_lr = 1e-4
-    critic_lr = 1e-4
+    actor_lr = 1e-5
+    critic_lr = 1e-5
 
     actor_update_T = 4
     critic_update_T = 1
@@ -116,7 +105,8 @@ def main():
     initial_collect_steps = batch_size * 20
     # %% ------- Print & Export Hyperparameters Summary -------
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    save_dir = os.path.join("C:\\Document_UMONS\\Thèse-Code\\SI_side_repository\\Runs\\Quarter\\Runs", f'Run_TD3_PyTorch_{timestamp}_EARLY_STOP_S{seed}_TEST')
+    save_dir = "C:\\Document_UMONS\\Thèse-Code\\SI_side_repository\\Runs\\Minute\\" + Environment_type
+    save_dir = os.path.join(save_dir, f'Run_TD3_PyTorch_min_{timestamp}_EARLY_STOP_S{seed}_TEST')
 
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
@@ -127,7 +117,6 @@ def main():
         f.write(f"{' Category ':*^40}\n")
         f.write(f"  - Algorithm                  : TD3 (PyTorch Version)\n")
         f.write(f"  - Random Seed                : {seed}\n")
-        # f.write(f"  - Window size (Past History) : {window_size}\n")
         f.write(f"  - Global Epochs              : {num_epochs}\n")
         f.write(f"  - Batch size                 : {batch_size}\n")
         f.write(f"  - Replay buffer max length   : {replay_buffer_max_length}\n")
@@ -149,7 +138,7 @@ def main():
         f.write(f"  - Tuned_initial_exp          : {tuned_initial_exp}\n")
         f.write(f"  - State                      : SoC + 6 calendar variables + window (size = 4) * (SI_prevbatteryaction, Price_final_QH, NRV_withoutIGCC_postbatteryaction)\n")
         f.write(f"  - State                      : 19 \n")
-        f.write(f"  - Ce qui change              : ")
+        f.write(f"  - Ce qui change              : lr 10-5, batch_size 128")
         f.write(f"\n{'*'*40}\n")
 
     print(f"Dossier créé et hyperparamètres sauvés : {save_dir}")
