@@ -10,27 +10,23 @@ import shutil
 import gc 
 from tqdm import tqdm # type: ignore
 from datetime import datetime
-
 import faulthandler, psutil
-import ctypes
-ES_CONTINUOUS, ES_SYSTEM_REQUIRED = 0x80000000, 0x00000001
-ctypes.windll.kernel32.SetThreadExecutionState(ES_CONTINUOUS | ES_SYSTEM_REQUIRED)
+
 proc = psutil.Process(os.getpid())
-Environment_dir = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "C:\\Document_UMONS\\Thèse-Code\\System_Imbalance\\System-Imbalance")
-)
+Result_dir = r"C:\\Document_UMONS\\Thèse-Code\\SI_side_repository"
+Environment_dir = r"C:\\Document_UMONS\\Thèse-Code\\System_Imbalance\\System-Imbalance\\Environment_quarter"
 sys.path.append(Environment_dir)
-faulthandler.enable(open(os.path.join(Environment_dir, "crash.log"), "ab"))
+faulthandler.enable(open(os.path.join(Result_dir, "crash.log"), "ab"))
 
 # --- IMPORTATION DU PIPELINE PYTORCH (Environnements & Prétraitement) ---
-from Environment_quarter import Environment, importdata
+from Environment_quarter_initial import Environment, importdata #type:ignore
 from TD3_training import evaluate_agent
 from TD3_torch import Agent
 
 # %%=============================================================================
 # 1. TARGET DIRECTORIES
 # ==============================================================================
-DOSSIER_RUN = r"C:\Document_UMONS\Thèse-Code\TD3_Minute\RL_agent_quarter\TD3\Runs\Run_TD3_PyTorch_20261107_200756_EARLY_STOP_S1_TEST"  #Fichier où est stocké le modèle sauvegardé 
+DOSSIER_RUN = r"C:\\Document_UMONS\\Thèse-Code\\SI_side_repository\\Runs\\Quarter\\Initial\\Run_TD3_PyTorch_quarter_20261113_112007_EARLY_STOP_S1_TEST"  #Fichier où est stocké le modèle sauvegardé 
 TXT_PATH = os.path.join(DOSSIER_RUN, "hyperparameters.txt")
 
 # %% =============================================================================
@@ -57,11 +53,10 @@ EP_ratio = 1
 roundtrip_efficiency = 0.9
 battery_replacement_cost = 3e+5 * battery_max_power * EP_ratio
 
-path_training = os.path.normpath('./Data_Now/Dataset_Train_2025_2026_Current_SI.csv')
-path_validation = os.path.normpath('./Data_Now/Dataset_Val_2025_2026_Current_SI.csv')
-path_test = os.path.normpath('./Data_Now/Dataset_Test_2025_2026_Current_SI.csv') 
-path_merit_order = os.path.normpath('./Data_Now/merit_parsed.pkl')
-
+path_training = os.path.normpath('C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/Dataset_Train_2025_2026_Current_SI.csv')
+path_validation = os.path.normpath('C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/Dataset_Val_2025_2026_Current_SI.csv')
+path_test = os.path.normpath('C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/Dataset_Test_2025_2026_Current_SI.csv')
+path_merit_order = os.path.normpath('C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/merit_parsed.pkl')
 # %% =============================================================================
 # 4. DATA IMPORT AND MIDNIGHT ANCHOR CONFIGURATIONS
 # =============================================================================

@@ -105,7 +105,7 @@ def main():
     initial_collect_steps = batch_size * 20
     # %% ------- Print & Export Hyperparameters Summary -------
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    save_dir = "C:\\Document_UMONS\\Thèse-Code\\SI_side_repository\\Runs\\Minute\\" + Environment_type
+    save_dir = "C:\\Document_UMONS\\Thèse-Code\\SI_side_repository\\Runs\\Quarter\\" + Environment_type
     save_dir = os.path.join(save_dir, f'Run_TD3_PyTorch_min_{timestamp}_EARLY_STOP_S{seed}_TEST')
 
     if not os.path.exists(save_dir):

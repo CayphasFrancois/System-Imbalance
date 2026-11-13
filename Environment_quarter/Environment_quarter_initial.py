@@ -314,6 +314,7 @@ class Environment:
 
         # Calcul du prix final du 1/4h basé sur le SI moyen et le NRV moyen/modifié du 1/4h
         final_qh_price = self._calculate_quarter_price(q_si_mean_price, self.q_si_mean_previous)
+        self.qh_prices.append(final_qh_price)
 
         profit_qh = -energy_qh_mwh * final_qh_price
         reward = profit_qh - cost - penalized
