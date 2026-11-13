@@ -109,6 +109,9 @@ def metrics(err, ref, pred):
         'Biais': err.mean(),
         'Corr': pred.corr(ref),
         '% |err|<1€': (err.abs() < 1).mean() * 100,
+        '% |err|<10€': (err.abs() < 10).mean() * 100,
+        '% |err|<50€': (err.abs() < 50).mean() * 100,
+        '% |err|<100€': (err.abs() < 100).mean() * 100,
     }
  
  
