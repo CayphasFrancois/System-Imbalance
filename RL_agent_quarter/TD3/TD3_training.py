@@ -82,7 +82,7 @@ def main():
     tuned_initial_exp = 0   
     nb_quarters_per_episode = 96
     nb_min_per_episode = 60*24
-    replay_buffer_max_length = int(1e5)
+    replay_buffer_max_length = int(1e6)
     batch_size = 128 
     num_epochs = 20
 

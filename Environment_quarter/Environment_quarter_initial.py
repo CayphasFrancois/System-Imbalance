@@ -113,7 +113,7 @@ class Environment:
         h4 = (h4 - self.mean[sel, None]) / self.std[sel, None]
 
         cal = self._cal_arr[i] # Valeurs calendaires au début du quart d'heure
-        return np.concatenate(([soc], cal, h4.ravel())).astype(np.float32)
+        return np.concatenate(([soc], cal, h4.ravel())).astype(np.float64)
 
     @staticmethod
     def _unpack(d):
@@ -287,7 +287,7 @@ class Environment:
         cost = 0.0
         if fraction_of_max_power < 0:
             # 15 minutes équivalent à 0.25h pour la formule de dégradation
-            cost = 15*self._R * 5.24e-4 * (abs(fraction_of_max_power) / 60) ** 2.03
+            cost = self._R * 5.24e-4 * (abs(fraction_of_max_power) / 4) ** 2.03
 
         battery_charge_MW = fraction_of_max_power * self._max_power
         if battery_charge_MW > 0: 
@@ -372,12 +372,12 @@ def collect_data(environment, agent, steps, initial):
     total_reward = 0
     unfeas_action = []
     x = 16 * 20
-    arbitrary_actions = np.random.uniform(-1, 1, 20)
 
     state = environment.reset()
 
     if initial == 0:
         for _ in range(int(x / 16)):
+            arbitrary_actions = np.random.uniform(-1, 1, 20)
             for i in range(16):
                 sample = np.array([arbitrary_actions[i]], dtype=np.float32)
                 next_state, reward,_, done = environment.step(sample)

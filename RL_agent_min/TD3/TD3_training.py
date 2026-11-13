@@ -82,11 +82,11 @@ def main():
     tuned_initial_exp = 0   
     nb_quarters_per_episode = 96
     nb_min_per_episode = 60*24
-    replay_buffer_max_length = int(1e5)
+    replay_buffer_max_length = int(1e6)
     batch_size = 128 
     num_epochs = 20
 
-    gamma = 0.99
+    gamma = 0.99**(1/15)
     tau = 5*1e-3
     actor_lr = 1e-5
     critic_lr = 1e-5
@@ -138,7 +138,7 @@ def main():
         f.write(f"  - Tuned_initial_exp          : {tuned_initial_exp}\n")
         f.write(f"  - State                      : SoC + 6 calendar variables + window (size = 4) * (SI_prevbatteryaction, Price_final_QH, NRV_withoutIGCC_postbatteryaction) + 14 (number of minutes) * (SI_premodif, ACE, IGCC, NRV_new_postbaterryaction,Price_predictionbasedonQHvalues)\n")
         f.write(f"  - State dims                 : 89 \n")
-        f.write(f"  - Ce qui change              : lr 10-5, batch_size 128")
+        f.write(f"  - Ce qui change              : lr 10-5, batch_size 128 & gamma**(1/15)")
         f.write(f"\n{'*'*40}\n")
 
     print(f"Dossier créé et hyperparamètres sauvés : {save_dir}")
