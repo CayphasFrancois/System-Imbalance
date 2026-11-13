@@ -17,11 +17,12 @@ import faulthandler, psutil
 # ES_CONTINUOUS, ES_SYSTEM_REQUIRED = 0x80000000, 0x00000001
 # ctypes.windll.kernel32.SetThreadExecutionState(ES_CONTINUOUS | ES_SYSTEM_REQUIRED)
 proc = psutil.Process(os.getpid())
+Result_dir = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "C:\\Document_UMONS\\Thèse-Code\\SI_side_repository"))
 Environment_dir = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "C:\\Document_UMONS\\Thèse-Code\\SI_side_repository")
-)
-sys.path.append(Environment_dir)
-faulthandler.enable(open(os.path.join(Environment_dir, "crash.log"), "ab"))
+    os.path.join(os.path.dirname(__file__), "C:\\Document_UMONS\\Thèse-Code\\System_Imbalance\\System_Imbalance"))
+sys.path.append(Result_dir)
+faulthandler.enable(open(os.path.join(Result_dir, "crash.log"), "ab"))
 
 # --- IMPORTATION DU PIPELINE PYTORCH (Environnements & Prétraitement) ---
 import importlib
