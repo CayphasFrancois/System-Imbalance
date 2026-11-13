@@ -6,11 +6,13 @@ import sys
 import gc
 
 Result_dir = r"C:\\Document_UMONS\\Thèse-Code\\SI_side_repository"
-Environment_dir = r"C:\\Document_UMONS\\Thèse-Code\\System_Imbalance\\System-Imbalance\\Environment_quarter"
+Environment_dir = r"C:\\Document_UMONS\\Thèse-Code\\System_Imbalance\\System-Imbalance\\Environment_min"
 sys.path.append(Result_dir)
 sys.path.append(Environment_dir)
 
-from Environment_quarter_initial import Environment,importdata #type:ignore
+from Environment_min_initial import Environment,importdata #type:ignore
+
+LOCAL_TZ = "Europe/Brussels"
 
 #%% Price Agent
 path_training = os.path.normpath('C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/Dataset_Train_2025_2026_Current_SI.csv')
@@ -44,52 +46,84 @@ for _ in range(num_episodes):
         a = 0
         state, r, action, done = env.step(a)  
     gc.collect()
-Price_agent = env.qh_prices
+
+assert len(qh_timestamps) == len(env.qh_prices), "timestamps et prix désalignés"
 
 # Création d'un DataFrame de référence pour l'agent
-df_agent_results = pd.DataFrame({
-    'datetime': pd.to_datetime(qh_timestamps),
-    'price_agent': Price_agent})
-
-#%% Price Elia Imbalance Price Min
-
-path_Elia_data_min = os.path.normpath("C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/Raw_Data_Elia/Imbalance price per minute_05_03_25-25_10_2026.csv")
-df_Elia_min= pd.read_csv(path_Elia_data_min, sep=";") if path_Elia_data_min.endswith('.csv') else pd.read_excel(path_Elia_data_min)
-
-df_Elia_min['datetime'] = pd.to_datetime(df_Elia_min['Datetime'])
-
-# Filtrage pour ne garder que la 15ème minute (fin de chaque quart d'heure, ex: minutes 00, 15, 30, 45 selon le format exact d'Elia)
-# Vous pouvez ajuster les valeurs de minutes si le format d'Elia utilise 15, 30, 45, 60
-df_Elia_min_filtered = df_Elia_min[df_Elia_min['datetime'].dt.minute.isin([0, 15, 30, 45])].copy()
-
-#%% Price Elia Imbalance Price Quarter
-
-path_Elia_data_quarter = os.path.normpath("C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/Raw_Data_Elia/Imbalance price per quarter-hour_05_03_25-25_10_2026.csv")
-df_Elia_quarter= pd.read_csv(path_Elia_data_quarter, sep=";") if path_Elia_data_quarter.endswith('.csv') else pd.read_excel(path_Elia_data_quarter)
-
-df_Elia_quarter['datetime'] = pd.to_datetime(df_Elia_quarter['Datetime'])
-
-#%% Alignement et fusion des données 
-
+df_agent = pd.DataFrame({
+    'datetime_end': pd.to_datetime(qh_timestamps),
+    'price_agent': env.qh_prices,
+})
+df_agent['qh'] = df_agent['datetime_end'].dt.floor('15min')
+# %% ------- Données Elia -------
+def load_elia(path):
+    df = pd.read_csv(path, sep=";", encoding="utf-8-sig")
+    df.columns = df.columns.str.strip()
+    # Elia fournit des offsets (+01:00/+02:00) : on convertit en heure locale belge,
+    # comme le dataset de l'environnement, puis on retire le fuseau.
+    df['Datetime'] = (pd.to_datetime(df['Datetime'], utc=True)
+                        .dt.tz_convert(LOCAL_TZ)
+                        .dt.tz_localize(None))
+    return df
+ 
+ 
+# Prix par minute : le prix "final" du QH est celui de la dernière minute (minute % 15 == 14)
+path_Elia_min = os.path.normpath("C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/Raw_Data_Elia/Imbalance price per minute_05_03_25-25_10_2026.csv")
+df_elia_min = load_elia(path_Elia_min)
+df_elia_min = df_elia_min[df_elia_min['Datetime'].dt.minute % 15 == 14].copy()
+df_elia_min['qh'] = df_elia_min['Datetime'].dt.floor('15min')
+df_elia_min = (df_elia_min[['qh', 'Imbalance Price', 'Quality status']]
+               .rename(columns={'Imbalance Price': 'price_elia_min',
+                                'Quality status': 'quality_min'})
+               .drop_duplicates('qh', keep=False))
+ 
+# Prix par quart d'heure : Datetime = début du QH
+path_Elia_quarter = os.path.normpath("C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/Raw_Data_Elia/Imbalance prices per quarter-hour_05_03_25-25_10_2026.csv")
+df_elia_q = load_elia(path_Elia_quarter)
+df_elia_q['qh'] = df_elia_q['Datetime']
+df_elia_q = (df_elia_q[['qh', 'Imbalance Price', 'Quality status']]
+             .rename(columns={'Imbalance Price': 'price_elia_quarter',
+                              'Quality status': 'quality_quarter'})
+             .drop_duplicates('qh', keep=False))
+ 
+# %% ------- Fusion -------
 print("Alignement et fusion des données...")
-
-# Fusion des résultats de l'agent avec les données Elia quart-heure
-df_comparison = pd.merge(
-    df_agent_results, 
-    df_Elia_quarter[['datetime', 'Imbalance Price']], # Remplacer 'Imbalance Price' par le nom exact de la colonne de prix dans le CSV Elia si nécessaire
-    on='datetime', 
-    how='inner',
-    suffixes=('', '_elia_quarter')
-)
-
-# Fusion avec les données Elia minute filtrées
-df_comparison = pd.merge(
-    df_comparison, 
-    df_Elia_min_filtered[['datetime', 'Imbalance Price']], 
-    on='datetime', 
-    how='inner',
-    suffixes=('_agent', '_elia_min')
-)
-
-print(f"Comparaison prête ! {len(df_comparison)} lignes alignées avec succès.")
+df_comparison = (df_agent
+                 .merge(df_elia_q, on='qh', how='inner')
+                 .merge(df_elia_min, on='qh', how='inner')
+                 .sort_values('qh').reset_index(drop=True))
+ 
+print(f"{len(df_agent)} QH agent | {len(df_comparison)} lignes alignées")
+if len(df_comparison) == 0:
+    raise ValueError("Aucune ligne alignée : vérifier le fuseau horaire / les dates.")
+ 
+# %% ------- Métriques -------
+df_comparison['err_vs_quarter'] = df_comparison['price_agent'] - df_comparison['price_elia_quarter']
+df_comparison['err_vs_min'] = df_comparison['price_agent'] - df_comparison['price_elia_min']
+ 
+ 
+def metrics(err, ref, pred):
+    return {
+        'MAE': err.abs().mean(),
+        'RMSE': float(np.sqrt((err ** 2).mean())),
+        'Biais': err.mean(),
+        'Corr': pred.corr(ref),
+        '% |err|<1€': (err.abs() < 1).mean() * 100,
+    }
+ 
+ 
+summary = pd.DataFrame({
+    'vs Elia QH': metrics(df_comparison['err_vs_quarter'], df_comparison['price_elia_quarter'], df_comparison['price_agent']),
+    'vs Elia min (dernière minute)': metrics(df_comparison['err_vs_min'], df_comparison['price_elia_min'], df_comparison['price_agent']),
+})
+print(summary.round(3))
+ 
+# Vérification interne côté Elia : le prix de la dernière minute doit égaler le prix du QH
+diff_elia = (df_comparison['price_elia_min'] - df_comparison['price_elia_quarter']).abs()
+print(f"Elia min vs Elia QH : {(diff_elia < 1e-6).mean() * 100:.2f} % identiques")
+ 
+# Pires écarts, utiles pour déboguer l'environnement
+print(df_comparison.reindex(df_comparison['err_vs_quarter'].abs().sort_values(ascending=False).index)
+      [['qh', 'price_agent', 'price_elia_quarter', 'price_elia_min', 'quality_quarter']].head(15))
+ 
 print(df_comparison.head())
