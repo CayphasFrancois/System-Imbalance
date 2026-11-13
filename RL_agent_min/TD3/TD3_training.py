@@ -18,7 +18,6 @@ sys.path.append(Environment_dir)
 faulthandler.enable(open(os.path.join(Result_dir, "crash.log"), "ab"))
 
 # --- IMPORTATION DU PIPELINE PYTORCH (Environnements & Prétraitement) ---
-import Environment_min_initial #type:ignore
 from Environment_min_initial import Environment, importdata, collect_data #type:ignore
 from TD3_torch import Agent, set_seed
 Environment_type = "Initial"
@@ -138,7 +137,7 @@ def main():
         f.write(f"  - Tuned_initial_exp          : {tuned_initial_exp}\n")
         f.write(f"  - State                      : SoC + 6 calendar variables + window (size = 4) * (SI_prevbatteryaction, Price_final_QH, NRV_withoutIGCC_postbatteryaction) + 14 (number of minutes) * (SI_premodif, ACE, IGCC, NRV_new_postbaterryaction,Price_predictionbasedonQHvalues)\n")
         f.write(f"  - State dims                 : 89 \n")
-        f.write(f"  - Ce qui change              : lr 10-5, batch_size 128 & gamma**(1/15)")
+        f.write(f"  - Ce qui change              : lr 10-5, batch_size 128, patience 10 & gamma**(1/15)")
         f.write(f"\n{'*'*40}\n")
 
     print(f"Dossier créé et hyperparamètres sauvés : {save_dir}")
@@ -201,7 +200,7 @@ def main():
     best_avg_return = avg_return_initial
 
     # --- CONVERGENCE PATIENCE PARAMETERS SETUP FOR EARLY STOPPING PASS ---
-    patience = 5             # Allowed sequential evaluation evaluations checks without updates
+    patience = 10             # Allowed sequential evaluation evaluations checks without updates
     wait_counter = 0           
     min_delta = 0.5            
     early_stop_triggered = False 

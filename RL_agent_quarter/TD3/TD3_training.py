@@ -18,7 +18,6 @@ sys.path.append(Environment_dir)
 faulthandler.enable(open(os.path.join(Result_dir, "crash.log"), "ab"))
 
 # --- IMPORTATION DU PIPELINE PYTORCH (Environnements & Prétraitement) ---
-import Environment_quarter_initial #type:ignore
 from Environment_quarter_initial import Environment, importdata, collect_data #type:ignore
 from TD3_torch import Agent, set_seed
 Environment_type = "Initial"
@@ -106,7 +105,7 @@ def main():
     # %% ------- Print & Export Hyperparameters Summary -------
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     save_dir = "C:\\Document_UMONS\\Thèse-Code\\SI_side_repository\\Runs\\Quarter\\" + Environment_type
-    save_dir = os.path.join(save_dir, f'Run_TD3_PyTorch_min_{timestamp}_EARLY_STOP_S{seed}_TEST')
+    save_dir = os.path.join(save_dir, f'Run_TD3_PyTorch_quarter_{timestamp}_EARLY_STOP_S{seed}_TEST')
 
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
@@ -201,7 +200,7 @@ def main():
     best_avg_return = avg_return_initial
 
     # --- CONVERGENCE PATIENCE PARAMETERS SETUP FOR EARLY STOPPING PASS ---
-    patience = 5             # Allowed sequential evaluation evaluations checks without updates
+    patience = 10             # Allowed sequential evaluation evaluations checks without updates
     wait_counter = 0           
     min_delta = 0.5            
     early_stop_triggered = False 
