@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd  # type: ignore
 from sklearn.preprocessing import StandardScaler 
 import pickle
+import torch.nn as nn 
 
 class Environment:
     def __init__(self, df_system, mean, std, df_merit, max_power: float, discount_rate: float, 
@@ -37,6 +38,7 @@ class Environment:
         self._eta = float(eta)
         self._R = float(bat_replacement_cost)
         self._penalty = float(penalty)
+        self.weeklayer = nn.Embedding(7,3,max_norm=1)
 
         self._episode = 0
         self._episode_ended = False
@@ -113,7 +115,10 @@ class Environment:
         h4 = (h4 - self.mean[sel, None]) / self.std[sel, None]
 
         cal = self._cal_arr[i] # Valeurs calendaires au début du quart d'heure
-        return np.concatenate(([soc], cal, h4.ravel())).astype(np.float64)
+        weekday = self.df_system['datetime'][self._current_idx].weekday()
+        embedded_weekday = self.weeklayer(weekday).detach().numpy()
+
+        return np.concatenate(([soc], cal,embedded_weekday, h4.ravel())).astype(np.float64)
 
     @staticmethod
     def _unpack(d):
