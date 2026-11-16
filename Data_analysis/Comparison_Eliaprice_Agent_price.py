@@ -55,6 +55,7 @@ df_agent = pd.DataFrame({
     'price_agent': env.qh_prices,
 })
 df_agent['qh'] = df_agent['datetime_end'].dt.floor('15min')
+
 # %% ------- Données Elia -------
 def load_elia(path):
     df = pd.read_csv(path, sep=";", encoding="utf-8-sig")
@@ -124,9 +125,13 @@ print(summary.round(3))
 # Vérification interne côté Elia : le prix de la dernière minute doit égaler le prix du QH
 diff_elia = (df_comparison['price_elia_min'] - df_comparison['price_elia_quarter']).abs()
 print(f"Elia min vs Elia QH : {(diff_elia < 1e-6).mean() * 100:.2f} % identiques")
- 
+print(f"Elia min vs Elia QH : {(diff_elia < 5).mean() * 100:.2f} % identiques à 5€ près")
+
 # Pires écarts, utiles pour déboguer l'environnement
 print(df_comparison.reindex(df_comparison['err_vs_quarter'].abs().sort_values(ascending=False).index)
       [['qh', 'price_agent', 'price_elia_quarter', 'price_elia_min', 'quality_quarter']].head(15))
- 
-print(df_comparison.head())
+
+
+df_comparison.to_csv("C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/comparaison_prix.csv", sep=";", index=False)
+
+# print(df_comparison.head())
