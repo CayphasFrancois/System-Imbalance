@@ -48,6 +48,7 @@ class Environment:
         self._episode_ended = False
         
         dt = pd.to_datetime(self.df_system['datetime'])
+        self._weekday_arr = dt.dt.weekday.to_numpy()
         steps = self._nb_quarters_per_episode * 15
         self._min_in_qh_arr = (dt.dt.minute.to_numpy() % 15)
         self._qh_key_arr = dt.dt.floor('15min').to_numpy()
@@ -134,11 +135,14 @@ class Environment:
             
         h = (h - self.mean[:5, None]) / self.std[:5, None]
 
+        
         sel = [0, 3, 4]                             # si, nrv, prix
         h4 = np.array([self.buf_q_si, self.buf_q_nrv, self.buf_q_price], dtype=np.float64)
         h4 = (h4 - self.mean[sel, None]) / self.std[sel, None]
 
-        return np.concatenate(([soc], self._cal_arr[i], h.ravel(), h4.ravel())).astype(np.float64)
+        weekday = self._weekday_arr[i]
+
+        return np.concatenate(([soc], self._cal_arr[i], h.ravel(), h4.ravel(),[weekday])).astype(np.float64)
 
     @staticmethod
     def _unpack(d):
