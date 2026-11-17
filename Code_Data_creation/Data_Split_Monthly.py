@@ -22,9 +22,9 @@ def split_dataset(input_csv_path: str):
 
   # Sauvegarde des trois fichiers CSV (avec le même séparateur ';')
   print("Sauvegarde des jeux de données...")
-  train_filename = "C:\\Document_UMONS\\Thèse-Code\\TD3_Minute\\Data_Now\\Dataset_Train_2025_2026_Current_SI.csv"
-  test_filename = "C:\\Document_UMONS\\Thèse-Code\\TD3_Minute\\Data_Now\\Dataset_Test_2025_2026_Current_SI.csv"
-  val_filename = "C:\\Document_UMONS\\Thèse-Code\\TD3_Minute\\Data_Now\\Dataset_Val_2025_2026_Current_SI.csv"
+  train_filename = "C:\\Document_UMONS\\Thèse-Code\\SI_side_repository\\Data\\Split_initial\\Dataset_Train_2025_2026_Current_SI.csv"
+  test_filename = "C:\\Document_UMONS\\Thèse-Code\\SI_side_repository\\Data\\Split_initial\\Dataset_Test_2025_2026_Current_SI.csv"
+  val_filename = "C:\\Document_UMONS\\Thèse-Code\\SI_side_repository\\Data\\Split_initial\\Dataset_Val_2025_2026_Current_SI.csv"
 
   train_df.to_csv(train_filename, sep=";", index=False)
   test_df.to_csv(test_filename, sep=";", index=False)
@@ -38,5 +38,5 @@ def split_dataset(input_csv_path: str):
 
 if __name__ == "__main__":
   # Remplace par le nom de ton fichier CSV source global
-  INPUT_FILE = "C:\\Document_UMONS\\Thèse-Code\\TD3_Minute\\Data_Now\\Current system imbalance_processed.csv"
+  INPUT_FILE = "C:\\Document_UMONS\\Thèse-Code\\SI_side_repository\\Data\\Current system imbalance_processed.csv"
   split_dataset(INPUT_FILE)
