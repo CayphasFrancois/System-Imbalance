@@ -74,7 +74,7 @@ env_eval = Environment(
                         battery_replacement_cost,penalty=0
                         )
 
-input_dims = (89,)
+input_dims = (92,)
 n_actions = 1
 
 # Instanciation et chargement des poids du modèle sauvegardé

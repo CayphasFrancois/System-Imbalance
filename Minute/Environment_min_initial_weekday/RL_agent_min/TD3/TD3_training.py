@@ -156,7 +156,7 @@ def main():
     num_val_episodes = validation_env.n_days
 
     # %% -------Instanciation de l'Agent PyTorch-------
-    input_dims = (89,)
+    input_dims = (92,)
     n_actions = 1
 
     agent = Agent(
