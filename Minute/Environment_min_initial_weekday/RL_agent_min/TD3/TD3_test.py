@@ -14,13 +14,13 @@ import faulthandler, psutil
 
 proc = psutil.Process(os.getpid())
 Result_dir = r"C:\\Document_UMONS\\Thèse-Code\\SI_side_repository"
-Environment_dir = r"C:\\Document_UMONS\\Thèse-Code\\System_Imbalance\\System-Imbalance\\Environment_minute"
+Environment_dir = r"C:\\Document_UMONS\\Thèse-Code\\System_Imbalance\\System-Imbalance\\Minute\\Environment_min_initial_weekday"
 sys.path.append(Environment_dir)
 faulthandler.enable(open(os.path.join(Result_dir, "crash.log"), "ab"))
 
 # --- IMPORTATION DU PIPELINE PYTORCH (Environnements & Prétraitement) ---
-from Environment_min_inital import Environment, importdata #type:ignore
-from TD3_training import evaluate_agent
+from Environment_min_initial_weekday import Environment_test_1ep, importdata #type:ignore
+from TD3_training_multiday_ep import evaluate_agent
 from TD3_torch import Agent
 
 # %%=============================================================================
@@ -53,9 +53,9 @@ EP_ratio = 1
 roundtrip_efficiency = 0.9
 battery_replacement_cost = 3e+5 * battery_max_power * EP_ratio
 
-path_training = os.path.normpath('C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/Dataset_Train_2025_2026_Current_SI.csv')
-path_validation = os.path.normpath('C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/Dataset_Val_2025_2026_Current_SI.csv')
-path_test = os.path.normpath('C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/Dataset_Test_2025_2026_Current_SI.csv')
+path_training = os.path.normpath('C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/Split_Train_Val_Month_Test_End/Dataset_Train_2025_2026_Current_SI.csv')
+path_validation = os.path.normpath('C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/Split_Train_Val_Month_Test_End/Dataset_Val_2025_2026_Current_SI.csv')
+path_test = os.path.normpath('C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/Split_Train_Val_Month_Test_End/Dataset_Test_2025_2026_Current_SI.csv')
 path_merit_order = os.path.normpath('C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/merit_parsed.pkl')
 
 # %% =============================================================================
@@ -68,7 +68,7 @@ df_train,  _, df_test, merit_order_dict, mean,std= importdata(path_training, pat
 # 5. ENVIRONMENT CREATION AND PYTORCH AGENT INSTANCIATION
 # =============================================================================
 print("\nCreating Evaluation environment...")
-env_eval = Environment(
+env_eval = Environment_test_1ep(
                         df_test,mean,std, merit_order_dict, battery_max_power,
                         1, nb_quarters_per_episode, EP_ratio, roundtrip_efficiency,
                         battery_replacement_cost,penalty=0
@@ -184,11 +184,11 @@ agent.actor.eval()
 # 7. FULL DATASET GLOBAL EVALUATION (SYNCHRONIZED MIDNIGHT ANCHOR)
 # =============================================================================
 
-num_episodes = env_eval.n_days
+num_episodes = 1
 
 episode_profit_list=[]
 
-average_return,episode_profit_list,state_reward_action = evaluate_agent(env_eval,agent)
+average_return,episode_profit_list,state_reward_action = evaluate_agent(env_eval,agent,num_episodes)
 total_profit = average_return * num_episodes
 
 

@@ -12,15 +12,15 @@ import faulthandler, psutil
 
 proc = psutil.Process(os.getpid())
 Result_dir = r"C:\\Document_UMONS\\Thèse-Code\\SI_side_repository"
-Environment_dir = r"C:\\Document_UMONS\\Thèse-Code\\System_Imbalance\\System-Imbalance\\Environment_min"
+Environment_dir = r"C:\\Document_UMONS\\Thèse-Code\\System_Imbalance\\System-Imbalance\\Minute\\Environment_min_initial_weekday"
 sys.path.append(Result_dir)
 sys.path.append(Environment_dir)
 faulthandler.enable(open(os.path.join(Result_dir, "crash.log"), "ab"))
 
 # --- IMPORTATION DU PIPELINE PYTORCH (Environnements & Prétraitement) ---
-from Environment_min_initial import Environment, importdata, collect_data #type:ignore
+from Environment_min_initial_weekday import Environment, importdata, collect_data #type:ignore
 from TD3_torch import Agent, set_seed
-Environment_type = "Initial"
+Environment_type = "Initial_Weekday"
 
 
 # %% ------- Synchronized Manual Evaluation Loop Interface (PyTorch) -------
@@ -68,9 +68,9 @@ def main():
     penal = 30
 
     # Input training data matrices including warm-up sliding indices blocks
-    path_training = os.path.normpath('C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/Dataset_Train_2025_2026_Current_SI.csv')
-    path_validation = os.path.normpath('C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/Dataset_Val_2025_2026_Current_SI.csv')
-    path_test = os.path.normpath('C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/Dataset_Test_2025_2026_Current_SI.csv')
+    path_training = os.path.normpath('C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/Split_Train_Val_Month_Test_End/Dataset_Train_2025_2026_Current_SI.csv')
+    path_validation = os.path.normpath('C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/Split_Train_Val_Month_Test_End/Dataset_Val_2025_2026_Current_SI.csv')
+    path_test = os.path.normpath('C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/Split_Train_Val_Month_Test_End/Dataset_Test_2025_2026_Current_SI.csv')
     path_merit_order = os.path.normpath('C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/merit_parsed.pkl')
 
     print('Importing data + preprocessing (PyTorch Pipeline)...')
@@ -135,8 +135,8 @@ def main():
         f.write(f"  - Battery Replacement Cost   : {battery_replacement_cost}\n")
         f.write(f"  - Penalty (Constraint)       : {penal}\n")
         f.write(f"  - Tuned_initial_exp          : {tuned_initial_exp}\n")
-        f.write(f"  - State                      : SoC + 6 calendar variables + window (size = 4) * (SI_prevbatteryaction, Price_final_QH, NRV_withoutIGCC_postbatteryaction) + 14 (number of minutes) * (SI_premodif, ACE, IGCC, NRV_new_postbaterryaction,Price_predictionbasedonQHvalues)\n")
-        f.write(f"  - State dims                 : 89 \n")
+        f.write(f"  - State                      : SoC + 6 calendar variables + weekday (embedlayer) + window (size = 4) * (SI_prevbatteryaction, Price_final_QH, NRV_withoutIGCC_postbatteryaction) + 14 (number of minutes) * (SI_premodif, ACE, IGCC, NRV_new_postbaterryaction,Price_predictionbasedonQHvalues)\n")
+        f.write(f"  - State dims                 : 92 \n")
         f.write(f"  - Ce qui change              : lr 10-5, batch_size 128, patience 10 & gamma**(1/15)")
         f.write(f"\n{'*'*40}\n")
 
