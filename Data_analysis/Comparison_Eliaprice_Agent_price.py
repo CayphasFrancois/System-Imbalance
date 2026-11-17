@@ -6,7 +6,7 @@ import sys
 import gc
 
 Result_dir = r"C:\\Document_UMONS\\Thèse-Code\\SI_side_repository"
-Environment_dir = r"C:\\Document_UMONS\\Thèse-Code\\System_Imbalance\\System-Imbalance\\Environment_min"
+Environment_dir = r"C:\\Document_UMONS\\Thèse-Code\\System_Imbalance\\System-Imbalance\\Minute\\Environment_min"
 sys.path.append(Result_dir)
 sys.path.append(Environment_dir)
 
@@ -43,6 +43,7 @@ for _ in range(num_episodes):
     while not done:
         if env._min_in_qh_arr[env._current_idx] == 14:
             qh_timestamps.append(env.df_system.loc[env._current_idx, 'datetime'])
+
         a = 0
         state, r, action, done = env.step(a)  
     gc.collect()
