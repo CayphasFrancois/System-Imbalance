@@ -189,7 +189,7 @@ num_episodes = 1
 episode_profit_list=[]
 
 average_return,episode_profit_list,state_reward_action = evaluate_agent(env_eval,agent,num_episodes)
-total_profit = average_return * num_episodes
+total_profit = sum(episode_profit_list)
 
 
 #%% Stockage des résultats dans un fichier texte
@@ -206,304 +206,304 @@ def day_slice(env, k):
     s = int(env._day_starts[k])
     return slice(s, s + 1440)
 
-#%% Graphique Profit/jour
-fig_f, ax_f = plt.subplots(figsize=(12, 6))
-ax_f.plot(range(num_episodes), episode_profit_list, color='darkorange', linewidth=2.5)
-ax_f.fill_between(range(num_episodes), episode_profit_list, color='navajowhite', alpha=0.3)
-ax_f.set_title("Average Financial Performance per day on Dataset (TD3)", fontsize=14, fontweight='bold')
-ax_f.set_xlabel("Days"); ax_f.set_ylabel("Profit/day (€)"); ax_f.grid(True, linestyle='--', alpha=0.7)
-plt.tight_layout()
-plt.show()
-fig_f.savefig(os.path.join(DOSSIER_RUN, "Profit_per_day.png"), dpi=300)
-plt.close(fig_f)
-print(f"\nFINAL RESULT: {total_profit:,.2f} € | Avg: {average_return:,.2f} €/day")
+# #%% Graphique Profit/jour
+# fig_f, ax_f = plt.subplots(figsize=(12, 6))
+# ax_f.plot(range(num_episodes), episode_profit_list, color='darkorange', linewidth=2.5)
+# ax_f.fill_between(range(num_episodes), episode_profit_list, color='navajowhite', alpha=0.3)
+# ax_f.set_title("Average Financial Performance per day on Dataset (TD3)", fontsize=14, fontweight='bold')
+# ax_f.set_xlabel("Days"); ax_f.set_ylabel("Profit/day (€)"); ax_f.grid(True, linestyle='--', alpha=0.7)
+# plt.tight_layout()
+# plt.show()
+# fig_f.savefig(os.path.join(DOSSIER_RUN, "Profit_per_day.png"), dpi=300)
+# plt.close(fig_f)
+# print(f"\nFINAL RESULT: {total_profit:,.2f} € | Avg: {average_return:,.2f} €/day")
 
-#%% Graphique Profit cumulé
-cumulated_profit = []
-sum_profit= 0 
-for i in range (len(episode_profit_list)+1): 
-    cumulated_profit.append(sum_profit)
-    if i <= len(episode_profit_list)-1:
-        sum_profit+=episode_profit_list[i]
+# #%% Graphique Profit cumulé
+# cumulated_profit = []
+# sum_profit= 0 
+# for i in range (len(episode_profit_list)+1): 
+#     cumulated_profit.append(sum_profit)
+#     if i <= len(episode_profit_list)-1:
+#         sum_profit+=episode_profit_list[i]
 
-fig_f, ax_f = plt.subplots(figsize=(12, 6))
-ax_f.plot(range(len(cumulated_profit)), cumulated_profit, color='darkorange', linewidth=2.5)
-ax_f.fill_between(range(len(cumulated_profit)), cumulated_profit, color='navajowhite', alpha=0.3)
-ax_f.set_title("Cumulative Financial Performance on Dataset (TD3)", fontsize=14, fontweight='bold')
-ax_f.set_xlabel("Days"); ax_f.set_ylabel("Total Profit (€)"); ax_f.grid(True, linestyle='--', alpha=0.7)
-plt.tight_layout()
-plt.show()
-fig_f.savefig(os.path.join(DOSSIER_RUN, "Global_Results.png"), dpi=300)
-plt.close(fig_f) 
-# %% Graphique SI/Action
+# fig_f, ax_f = plt.subplots(figsize=(12, 6))
+# ax_f.plot(range(len(cumulated_profit)), cumulated_profit, color='darkorange', linewidth=2.5)
+# ax_f.fill_between(range(len(cumulated_profit)), cumulated_profit, color='navajowhite', alpha=0.3)
+# ax_f.set_title("Cumulative Financial Performance on Dataset (TD3)", fontsize=14, fontweight='bold')
+# ax_f.set_xlabel("Days"); ax_f.set_ylabel("Total Profit (€)"); ax_f.grid(True, linestyle='--', alpha=0.7)
+# plt.tight_layout()
+# plt.show()
+# fig_f.savefig(os.path.join(DOSSIER_RUN, "Global_Results.png"), dpi=300)
+# plt.close(fig_f) 
+# # %% Graphique SI/Action
 
-# x_axis = np.arange(3*1440)
-# si_data = df_test['system imbalance'].to_numpy(dtype=np.float64)
-# si_plot = np.concatenate ([si_data[28*1440:29*1440], si_data[41*1440:42*1440], si_data[75*1440:76*1440]])  
+# # x_axis = np.arange(3*1440)
+# # si_data = df_test['system imbalance'].to_numpy(dtype=np.float64)
+# # si_plot = np.concatenate ([si_data[28*1440:29*1440], si_data[41*1440:42*1440], si_data[75*1440:76*1440]])  
+# # action_data = [item[2] for item in state_reward_action]
+# # action_plot = np.concatenate ([action_data[28*1440:29*1440], action_data[41*1440:42*1440], action_data[75*1440:76*1440]]).flatten()
+
+# x_axis = np.arange(1440)
+# si_plot = df_test['system imbalance'].to_numpy(dtype=np.float64)[day_slice(env_eval, 28)]
 # action_data = [item[2] for item in state_reward_action]
-# action_plot = np.concatenate ([action_data[28*1440:29*1440], action_data[41*1440:42*1440], action_data[75*1440:76*1440]]).flatten()
+# action_plot = np.concatenate ([action_data[28*1440:29*1440]]).flatten()
 
-x_axis = np.arange(1440)
-si_plot = df_test['system imbalance'].to_numpy(dtype=np.float64)[day_slice(env_eval, 28)]
-action_data = [item[2] for item in state_reward_action]
-action_plot = np.concatenate ([action_data[28*1440:29*1440]]).flatten()
+# fig, ax_si = plt.subplots(figsize=(12, 4.5))
+# ax_si.plot(x_axis, si_plot, color='blue', linewidth=1.5, label='SI (MW)')
+# ax_si.set_ylabel("SI [MW]", color='blue', fontweight='bold')
+# ax_si.tick_params(axis='y', labelcolor='blue')
+# max_si = max(abs(si_plot.min()), abs(si_plot.max()))
+# marge = max_si * 0.1
+# ax_si.set_ylim(-(max_si + marge), max_si + marge)
+# ax_si.axhline(0, color='black', linewidth=0.8, linestyle='-', alpha=0.7)  # Ligne zéro
 
-fig, ax_si = plt.subplots(figsize=(12, 4.5))
-ax_si.plot(x_axis, si_plot, color='blue', linewidth=1.5, label='SI (MW)')
-ax_si.set_ylabel("SI [MW]", color='blue', fontweight='bold')
-ax_si.tick_params(axis='y', labelcolor='blue')
-max_si = max(abs(si_plot.min()), abs(si_plot.max()))
-marge = max_si * 0.1
-ax_si.set_ylim(-(max_si + marge), max_si + marge)
-ax_si.axhline(0, color='black', linewidth=0.8, linestyle='-', alpha=0.7)  # Ligne zéro
+# ax_action = ax_si.twinx()
+# bar_colors = ['green' if a >= 0 else 'gray' for a in action_plot]
 
-ax_action = ax_si.twinx()
-bar_colors = ['green' if a >= 0 else 'gray' for a in action_plot]
+# ax_action.bar(x_axis, action_plot, width=0.15, color=bar_colors, alpha=0.4, label='Agent Action')
+# ax_action.set_ylabel("Action [-1, 1]", color='green', fontweight='bold')
+# ax_action.tick_params(axis='y', labelcolor='green')
+# ax_action.set_ylim(-1.1, 1.1)  # Fixer les limites de l'action
 
-ax_action.bar(x_axis, action_plot, width=0.15, color=bar_colors, alpha=0.4, label='Agent Action')
-ax_action.set_ylabel("Action [-1, 1]", color='green', fontweight='bold')
-ax_action.tick_params(axis='y', labelcolor='green')
-ax_action.set_ylim(-1.1, 1.1)  # Fixer les limites de l'action
+# plt.title("SI - Action on Dataset (TD3) ", fontsize=14, fontweight='bold', pad=12)
+# ax_si.set_xlabel("Steps")
+# ax_si.grid(True, linestyle='--', alpha=0.4)
 
-plt.title("SI - Action on Dataset (TD3) ", fontsize=14, fontweight='bold', pad=12)
-ax_si.set_xlabel("Steps")
-ax_si.grid(True, linestyle='--', alpha=0.4)
+# plt.tight_layout()
 
-plt.tight_layout()
+# plt.savefig(os.path.join(DOSSIER_RUN, "SI - Action on Dataset (TD3) .png"), dpi=300)
+# plt.show()
 
-plt.savefig(os.path.join(DOSSIER_RUN, "SI - Action on Dataset (TD3) .png"), dpi=300)
-plt.show()
+# #%% Graphique SoC 
 
-#%% Graphique SoC 
+# SoC_data = [item[0][0] for item in state_reward_action]
+# SoC_plot = np.concatenate ([SoC_data[28*1440:29*1440], SoC_data[41*1440:42*1440], SoC_data[75*1440:76*1440]]).flatten()
 
-SoC_data = [item[0][0] for item in state_reward_action]
-SoC_plot = np.concatenate ([SoC_data[28*1440:29*1440], SoC_data[41*1440:42*1440], SoC_data[75*1440:76*1440]]).flatten()
+# fig_f, ax_f = plt.subplots(figsize=(12, 6))
+# ax_f.plot(range(len(SoC_plot)), SoC_plot, color='crimson', linewidth=2.5)
+# ax_f.fill_between(range(len(SoC_plot)), SoC_plot, color='lightcoral', alpha=0.3)
+# ax_f.set_title("State of Charge (TD3) (3 days)", fontsize=14, fontweight='bold')
+# ax_f.set_xlabel("Steps"); ax_f.set_ylabel("SoC"); ax_f.grid(True, linestyle='--', alpha=0.7)
+# plt.tight_layout()
+# plt.show()
+# fig_f.savefig(os.path.join(DOSSIER_RUN, "State of Charge (TD3) (3 days).png"), dpi=300)
+# plt.close(fig_f) 
 
-fig_f, ax_f = plt.subplots(figsize=(12, 6))
-ax_f.plot(range(len(SoC_plot)), SoC_plot, color='crimson', linewidth=2.5)
-ax_f.fill_between(range(len(SoC_plot)), SoC_plot, color='lightcoral', alpha=0.3)
-ax_f.set_title("State of Charge (TD3) (3 days)", fontsize=14, fontweight='bold')
-ax_f.set_xlabel("Steps"); ax_f.set_ylabel("SoC"); ax_f.grid(True, linestyle='--', alpha=0.7)
-plt.tight_layout()
-plt.show()
-fig_f.savefig(os.path.join(DOSSIER_RUN, "State of Charge (TD3) (3 days).png"), dpi=300)
-plt.close(fig_f) 
+# # %% Graphiqe SoC/Action
 
-# %% Graphiqe SoC/Action
+# # x_axis = np.arange(3*1440)
+# # si_data = df_test['system imbalance'].to_numpy(dtype=np.float64)
+# # si_plot = np.concatenate ([si_data[28*1440:29*1440], si_data[41*1440:42*1440], si_data[75*1440:76*1440]])  
+# # action_data = [item[2] for item in state_reward_action]
+# # action_plot = np.concatenate ([action_data[28*1440:29*1440], action_data[41*1440:42*1440], action_data[75*1440:76*1440]]).flatten()
 
-# x_axis = np.arange(3*1440)
-# si_data = df_test['system imbalance'].to_numpy(dtype=np.float64)
-# si_plot = np.concatenate ([si_data[28*1440:29*1440], si_data[41*1440:42*1440], si_data[75*1440:76*1440]])  
+# x_axis = np.arange(1440)
+# SoC_data = [item[0][0] for item in state_reward_action]
+# SoC_plot = SoC_data[28*1440:29*1440]
 # action_data = [item[2] for item in state_reward_action]
-# action_plot = np.concatenate ([action_data[28*1440:29*1440], action_data[41*1440:42*1440], action_data[75*1440:76*1440]]).flatten()
+# action_plot = np.concatenate ([action_data[28*1440:29*1440]]).flatten()
 
-x_axis = np.arange(1440)
-SoC_data = [item[0][0] for item in state_reward_action]
-SoC_plot = SoC_data[28*1440:29*1440]
-action_data = [item[2] for item in state_reward_action]
-action_plot = np.concatenate ([action_data[28*1440:29*1440]]).flatten()
+# fig, ax_si = plt.subplots(figsize=(12, 4.5))
+# ax_si.plot(x_axis, SoC_plot, color='red', linewidth=1.5, label='SoC')
+# ax_si.set_ylabel("SoC", color='red', fontweight='bold')
+# ax_si.tick_params(axis='y', labelcolor='red')
+# ax_si.set_ylim(-1.1, 1.1)
+# ax_si.axhline(0, color='black', linewidth=0.8, linestyle='-', alpha=0.7)  # Ligne zéro
 
-fig, ax_si = plt.subplots(figsize=(12, 4.5))
-ax_si.plot(x_axis, SoC_plot, color='red', linewidth=1.5, label='SoC')
-ax_si.set_ylabel("SoC", color='red', fontweight='bold')
-ax_si.tick_params(axis='y', labelcolor='red')
-ax_si.set_ylim(-1.1, 1.1)
-ax_si.axhline(0, color='black', linewidth=0.8, linestyle='-', alpha=0.7)  # Ligne zéro
+# ax_action = ax_si.twinx()
+# bar_colors = ['green' if a >= 0 else 'gray' for a in action_plot]
 
-ax_action = ax_si.twinx()
-bar_colors = ['green' if a >= 0 else 'gray' for a in action_plot]
+# ax_action.bar(x_axis, action_plot, width=0.15, color=bar_colors, alpha=0.4, label='Agent Action')
+# ax_action.set_ylabel("Action [-1, 1]", color='green', fontweight='bold')
+# ax_action.tick_params(axis='y', labelcolor='green')
+# ax_action.set_ylim(-1.1, 1.1)  # Fixer les limites de l'action
 
-ax_action.bar(x_axis, action_plot, width=0.15, color=bar_colors, alpha=0.4, label='Agent Action')
-ax_action.set_ylabel("Action [-1, 1]", color='green', fontweight='bold')
-ax_action.tick_params(axis='y', labelcolor='green')
-ax_action.set_ylim(-1.1, 1.1)  # Fixer les limites de l'action
+# plt.title("SoC - Action on Dataset (TD3) ", fontsize=14, fontweight='bold', pad=12)
+# ax_si.set_xlabel("Steps")
+# ax_si.grid(True, linestyle='--', alpha=0.4)
 
-plt.title("SoC - Action on Dataset (TD3) ", fontsize=14, fontweight='bold', pad=12)
-ax_si.set_xlabel("Steps")
-ax_si.grid(True, linestyle='--', alpha=0.4)
+# plt.tight_layout()
 
-plt.tight_layout()
+# plt.savefig(os.path.join(DOSSIER_RUN, "SoC - Action on Dataset (TD3) .png"), dpi=300)
+# plt.show()
 
-plt.savefig(os.path.join(DOSSIER_RUN, "SoC - Action on Dataset (TD3) .png"), dpi=300)
-plt.show()
+# # %% Graphique SI/Action
 
-# %% Graphique SI/Action
+# # x_axis = np.arange(3*1440)
+# # si_data = df_test['system imbalance'].to_numpy(dtype=np.float64)
+# # si_plot = np.concatenate ([si_data[28*1440:29*1440], si_data[41*1440:42*1440], si_data[75*1440:76*1440]])  
+# # action_data = [item[2] for item in state_reward_action]
+# # action_plot = np.concatenate ([action_data[28*1440:29*1440], action_data[41*1440:42*1440], action_data[75*1440:76*1440]]).flatten()
 
-# x_axis = np.arange(3*1440)
-# si_data = df_test['system imbalance'].to_numpy(dtype=np.float64)
-# si_plot = np.concatenate ([si_data[28*1440:29*1440], si_data[41*1440:42*1440], si_data[75*1440:76*1440]])  
-# action_data = [item[2] for item in state_reward_action]
-# action_plot = np.concatenate ([action_data[28*1440:29*1440], action_data[41*1440:42*1440], action_data[75*1440:76*1440]]).flatten()
+# x_axis = np.arange(1440)
+# si_plot = df_test['system imbalance'].to_numpy(dtype=np.float64)[day_slice(env_eval, 28)]
+# SoC_data = [item[0][0] for item in state_reward_action]
+# SoC_plot = SoC_data[28*1440:29*1440]
 
-x_axis = np.arange(1440)
-si_plot = df_test['system imbalance'].to_numpy(dtype=np.float64)[day_slice(env_eval, 28)]
-SoC_data = [item[0][0] for item in state_reward_action]
-SoC_plot = SoC_data[28*1440:29*1440]
+# fig, ax_si = plt.subplots(figsize=(12, 4.5))
+# ax_si.plot(x_axis, si_plot, color='blue', linewidth=1.5, label='SI (MW)')
+# ax_si.set_ylabel("SI [MW]", color='blue', fontweight='bold')
+# ax_si.tick_params(axis='y', labelcolor='blue')
+# max_si = max(abs(si_plot.min()), abs(si_plot.max()))
+# marge = max_si * 0.1
+# ax_si.set_ylim(-(max_si + marge), max_si + marge)
+# ax_si.axhline(0, color='black', linewidth=0.8, linestyle='-', alpha=0.7)  # Ligne zéro
 
-fig, ax_si = plt.subplots(figsize=(12, 4.5))
-ax_si.plot(x_axis, si_plot, color='blue', linewidth=1.5, label='SI (MW)')
-ax_si.set_ylabel("SI [MW]", color='blue', fontweight='bold')
-ax_si.tick_params(axis='y', labelcolor='blue')
-max_si = max(abs(si_plot.min()), abs(si_plot.max()))
-marge = max_si * 0.1
-ax_si.set_ylim(-(max_si + marge), max_si + marge)
-ax_si.axhline(0, color='black', linewidth=0.8, linestyle='-', alpha=0.7)  # Ligne zéro
+# ax_action = ax_si.twinx()
+# bar_colors = ['crimson' if a >= 0 else 'gray' for a in SoC_plot]
 
-ax_action = ax_si.twinx()
-bar_colors = ['crimson' if a >= 0 else 'gray' for a in SoC_plot]
+# ax_action.bar(x_axis, SoC_plot, width=0.15, color=bar_colors, alpha=0.4, label='SoC')
+# ax_action.set_ylabel("SoC [0, 1]", color='crimson', fontweight='bold')
+# ax_action.tick_params(axis='y', labelcolor='crimson')
+# ax_action.set_ylim(-1.1, 1.1)  # Fixer les limites de l'action
 
-ax_action.bar(x_axis, SoC_plot, width=0.15, color=bar_colors, alpha=0.4, label='SoC')
-ax_action.set_ylabel("SoC [0, 1]", color='crimson', fontweight='bold')
-ax_action.tick_params(axis='y', labelcolor='crimson')
-ax_action.set_ylim(-1.1, 1.1)  # Fixer les limites de l'action
+# plt.title("SI - SoC on Dataset (TD3) ", fontsize=14, fontweight='bold', pad=12)
+# ax_si.set_xlabel("Steps")
+# ax_si.grid(True, linestyle='--', alpha=0.4)
 
-plt.title("SI - SoC on Dataset (TD3) ", fontsize=14, fontweight='bold', pad=12)
-ax_si.set_xlabel("Steps")
-ax_si.grid(True, linestyle='--', alpha=0.4)
+# plt.tight_layout()
 
-plt.tight_layout()
+# plt.savefig(os.path.join(DOSSIER_RUN, "SI - SoC on Dataset (TD3) .png"), dpi=300)
+# plt.show()
 
-plt.savefig(os.path.join(DOSSIER_RUN, "SI - SoC on Dataset (TD3) .png"), dpi=300)
-plt.show()
+# #%% Graphique Price 
 
-#%% Graphique Price 
+# Price_data = env_eval.qh_prices
+# # Price_plot = np.concatenate ([Price_data[28*96:29*96], Price_data[41*96:42*96], Price_data[75*96:76*96]]).flatten()
+# # Price_plot= Price_data[75*96:76*96]
+# Price_plot=Price_data
 
-Price_data = env_eval.qh_prices
-# Price_plot = np.concatenate ([Price_data[28*96:29*96], Price_data[41*96:42*96], Price_data[75*96:76*96]]).flatten()
-# Price_plot= Price_data[75*96:76*96]
-Price_plot=Price_data
-
-fig_f, ax_f = plt.subplots(figsize=(12, 6))
-ax_f.plot(range(len(Price_plot)), Price_plot, color='gold', linewidth=2.5)
-ax_f.fill_between(range(len(Price_plot)), Price_plot, color='lightyellow', alpha=0.3)
-ax_f.set_title("Price (TD3) ", fontsize=14, fontweight='bold')
-ax_f.set_xlabel("1/4 hour"); ax_f.set_ylabel("Price"); ax_f.grid(True, linestyle='--', alpha=0.7)
-plt.tight_layout()
-plt.show()
-fig_f.savefig(os.path.join(DOSSIER_RUN, "Price quarter hour (TD3) .png"), dpi=300)
-plt.close(fig_f) 
+# fig_f, ax_f = plt.subplots(figsize=(12, 6))
+# ax_f.plot(range(len(Price_plot)), Price_plot, color='gold', linewidth=2.5)
+# ax_f.fill_between(range(len(Price_plot)), Price_plot, color='lightyellow', alpha=0.3)
+# ax_f.set_title("Price (TD3) ", fontsize=14, fontweight='bold')
+# ax_f.set_xlabel("1/4 hour"); ax_f.set_ylabel("Price"); ax_f.grid(True, linestyle='--', alpha=0.7)
+# plt.tight_layout()
+# plt.show()
+# fig_f.savefig(os.path.join(DOSSIER_RUN, "Price quarter hour (TD3) .png"), dpi=300)
+# plt.close(fig_f) 
 
 
-#%% Graphique SI/Price
+# #%% Graphique SI/Price
 
 
-# x_axis = np.arange(3*1440)
-# si_data = df_test['system imbalance'].to_numpy(dtype=np.float64)
-# si_plot = np.concatenate ([si_data[28*1440:29*1440], si_data[41*1440:42*1440], si_data[75*1440:76*1440]])  
-# action_data = [item[2] for item in state_reward_action]
-# action_plot = np.concatenate ([action_data[28*1440:29*1440], action_data[41*1440:42*1440], action_data[75*1440:76*1440]]).flatten()
+# # x_axis = np.arange(3*1440)
+# # si_data = df_test['system imbalance'].to_numpy(dtype=np.float64)
+# # si_plot = np.concatenate ([si_data[28*1440:29*1440], si_data[41*1440:42*1440], si_data[75*1440:76*1440]])  
+# # action_data = [item[2] for item in state_reward_action]
+# # action_plot = np.concatenate ([action_data[28*1440:29*1440], action_data[41*1440:42*1440], action_data[75*1440:76*1440]]).flatten()
 
-x_axis = np.arange(1440)
-# si_data = df_test['system imbalance'].to_numpy(dtype=np.float64)
-# si_plot = np.concatenate ([si_data[75*1440:76*1440]])
-si_plot = df_test['system imbalance'].to_numpy(dtype=np.float64)[day_slice(env_eval, 75)]
-Price_data = env_eval.qh_prices
-Price_plot_1= Price_data[75*96:76*96]
-Price_plot = []
-for i in range (len(Price_plot_1)):
-    for _ in range (15): 
-        Price_plot.append(Price_plot_1[i])
-
-
-fig, ax_si = plt.subplots(figsize=(12, 4.5))
-ax_si.plot(x_axis, si_plot, color='blue', linewidth=1.5, label='SI (MW)')
-ax_si.set_ylabel("SI [MW]", color='blue', fontweight='bold')
-ax_si.tick_params(axis='y', labelcolor='blue')
-max_si = max(abs(si_plot.min()), abs(si_plot.max()))
-marge = max_si * 0.1
-ax_si.set_ylim(-(max_si + marge), max_si + marge)
-ax_si.axhline(0, color='black', linewidth=0.8, linestyle='-', alpha=0.7)  # Ligne zéro
-
-ax_action = ax_si.twinx()
-max_price = max(abs(min(Price_plot)), abs(max(Price_plot)))
-marge_price = max_price * 0.1 if max_price > 0 else 1.0
-
-ax_action.plot(x_axis, Price_plot, color='gold', alpha=0.4, label='Price')
-ax_action.set_ylabel("Price (€/MWh)", color='gold', fontweight='bold')
-ax_action.tick_params(axis='y', labelcolor='gold')
-ax_action.set_ylim(-(max_price + marge_price), max_price + marge_price)
-
-plt.title("SI - Price on Dataset (TD3) ", fontsize=14, fontweight='bold', pad=12)
-ax_si.set_xlabel("Steps")
-ax_si.grid(True, linestyle='--', alpha=0.4)
-
-plt.tight_layout()
-
-plt.savefig(os.path.join(DOSSIER_RUN, "SI - Price on Dataset (TD3) .png"), dpi=300)
-plt.show()
-
-#%% Graphique NRV_New
-
-NRV_new_plot = df_test['nrv_new'].to_numpy(dtype=np.float64)[day_slice(env_eval, 28)]
-
-fig_f, ax_f = plt.subplots(figsize=(12, 6))
-ax_f.plot(range(len(NRV_new_plot)), NRV_new_plot, color='purple', linewidth=2.5)
-ax_f.fill_between(range(len(NRV_new_plot)), NRV_new_plot, color='plum', alpha=0.3)
-ax_f.set_title("NRV new (TD3)(1 jour) ", fontsize=14, fontweight='bold')
-ax_f.set_xlabel("Steps hour"); ax_f.set_ylabel("NRV"); ax_f.grid(True, linestyle='--', alpha=0.7)
-plt.tight_layout()
-plt.show()
-fig_f.savefig(os.path.join(DOSSIER_RUN, "NRV new (TD3)(1 jour) .png"), dpi=300)
-plt.close(fig_f) 
-
-#%% Graphique NRV_New/Price
+# x_axis = np.arange(1440)
+# # si_data = df_test['system imbalance'].to_numpy(dtype=np.float64)
+# # si_plot = np.concatenate ([si_data[75*1440:76*1440]])
+# si_plot = df_test['system imbalance'].to_numpy(dtype=np.float64)[day_slice(env_eval, 75)]
+# Price_data = env_eval.qh_prices
+# Price_plot_1= Price_data[75*96:76*96]
+# Price_plot = []
+# for i in range (len(Price_plot_1)):
+#     for _ in range (15): 
+#         Price_plot.append(Price_plot_1[i])
 
 
-# x_axis = np.arange(3*1440)
-# si_data = df_test['system imbalance'].to_numpy(dtype=np.float64)
-# si_plot = np.concatenate ([si_data[28*1440:29*1440], si_data[41*1440:42*1440], si_data[75*1440:76*1440]])  
-# action_data = [item[2] for item in state_reward_action]
-# action_plot = np.concatenate ([action_data[28*1440:29*1440], action_data[41*1440:42*1440], action_data[75*1440:76*1440]]).flatten()
+# fig, ax_si = plt.subplots(figsize=(12, 4.5))
+# ax_si.plot(x_axis, si_plot, color='blue', linewidth=1.5, label='SI (MW)')
+# ax_si.set_ylabel("SI [MW]", color='blue', fontweight='bold')
+# ax_si.tick_params(axis='y', labelcolor='blue')
+# max_si = max(abs(si_plot.min()), abs(si_plot.max()))
+# marge = max_si * 0.1
+# ax_si.set_ylim(-(max_si + marge), max_si + marge)
+# ax_si.axhline(0, color='black', linewidth=0.8, linestyle='-', alpha=0.7)  # Ligne zéro
 
-x_axis = np.arange(1440)
-# NRV_new_data = df_test['nrv_new'].to_numpy(dtype=np.float64)
-NRV_new_plot = df_test['nrv_new'].to_numpy(dtype=np.float64)[day_slice(env_eval, 75)]
-# NRV_new_plot = np.concatenate ([NRV_new_data[75*1440:76*1440]])
-Price_data = env_eval.qh_prices
-Price_plot_1= Price_data[75*96:76*96]
-Price_plot = []
-for i in range (len(Price_plot_1)):
-    for _ in range (15): 
-        Price_plot.append(Price_plot_1[i])
+# ax_action = ax_si.twinx()
+# max_price = max(abs(min(Price_plot)), abs(max(Price_plot)))
+# marge_price = max_price * 0.1 if max_price > 0 else 1.0
+
+# ax_action.plot(x_axis, Price_plot, color='gold', alpha=0.4, label='Price')
+# ax_action.set_ylabel("Price (€/MWh)", color='gold', fontweight='bold')
+# ax_action.tick_params(axis='y', labelcolor='gold')
+# ax_action.set_ylim(-(max_price + marge_price), max_price + marge_price)
+
+# plt.title("SI - Price on Dataset (TD3) ", fontsize=14, fontweight='bold', pad=12)
+# ax_si.set_xlabel("Steps")
+# ax_si.grid(True, linestyle='--', alpha=0.4)
+
+# plt.tight_layout()
+
+# plt.savefig(os.path.join(DOSSIER_RUN, "SI - Price on Dataset (TD3) .png"), dpi=300)
+# plt.show()
+
+# #%% Graphique NRV_New
+
+# NRV_new_plot = df_test['nrv_new'].to_numpy(dtype=np.float64)[day_slice(env_eval, 28)]
+
+# fig_f, ax_f = plt.subplots(figsize=(12, 6))
+# ax_f.plot(range(len(NRV_new_plot)), NRV_new_plot, color='purple', linewidth=2.5)
+# ax_f.fill_between(range(len(NRV_new_plot)), NRV_new_plot, color='plum', alpha=0.3)
+# ax_f.set_title("NRV new (TD3)(1 jour) ", fontsize=14, fontweight='bold')
+# ax_f.set_xlabel("Steps hour"); ax_f.set_ylabel("NRV"); ax_f.grid(True, linestyle='--', alpha=0.7)
+# plt.tight_layout()
+# plt.show()
+# fig_f.savefig(os.path.join(DOSSIER_RUN, "NRV new (TD3)(1 jour) .png"), dpi=300)
+# plt.close(fig_f) 
+
+# #%% Graphique NRV_New/Price
 
 
-fig, ax_si = plt.subplots(figsize=(12, 4.5))
-ax_si.plot(x_axis, NRV_new_plot, color='purple', linewidth=1.5, label='NRV')
-ax_si.set_ylabel("NRV", color='purple', fontweight='bold')
-ax_si.tick_params(axis='y', labelcolor='purple')
-max_si = max(abs(NRV_new_plot.min()), abs(NRV_new_plot.max()))
-marge = max_si * 0.1
-ax_si.set_ylim(-(max_si + marge), max_si + marge)
-ax_si.axhline(0, color='black', linewidth=0.8, linestyle='-', alpha=0.7)  # Ligne zéro
+# # x_axis = np.arange(3*1440)
+# # si_data = df_test['system imbalance'].to_numpy(dtype=np.float64)
+# # si_plot = np.concatenate ([si_data[28*1440:29*1440], si_data[41*1440:42*1440], si_data[75*1440:76*1440]])  
+# # action_data = [item[2] for item in state_reward_action]
+# # action_plot = np.concatenate ([action_data[28*1440:29*1440], action_data[41*1440:42*1440], action_data[75*1440:76*1440]]).flatten()
 
-ax_action = ax_si.twinx()
-max_price = max(abs(min(Price_plot)), abs(max(Price_plot)))
-marge_price = max_price * 0.1 if max_price > 0 else 1.0
+# x_axis = np.arange(1440)
+# # NRV_new_data = df_test['nrv_new'].to_numpy(dtype=np.float64)
+# NRV_new_plot = df_test['nrv_new'].to_numpy(dtype=np.float64)[day_slice(env_eval, 75)]
+# # NRV_new_plot = np.concatenate ([NRV_new_data[75*1440:76*1440]])
+# Price_data = env_eval.qh_prices
+# Price_plot_1= Price_data[75*96:76*96]
+# Price_plot = []
+# for i in range (len(Price_plot_1)):
+#     for _ in range (15): 
+#         Price_plot.append(Price_plot_1[i])
 
-ax_action.plot(x_axis, Price_plot, color='gold', alpha=0.4, label='Price')
-ax_action.set_ylabel("Price (€/MWh)", color='gold', fontweight='bold')
-ax_action.tick_params(axis='y', labelcolor='gold')
-ax_action.set_ylim(-(max_price + marge_price), max_price + marge_price)
 
-plt.title("NRV New - Price on Dataset (TD3) ", fontsize=14, fontweight='bold', pad=12)
-ax_si.set_xlabel("Steps")
-ax_si.grid(True, linestyle='--', alpha=0.4)
+# fig, ax_si = plt.subplots(figsize=(12, 4.5))
+# ax_si.plot(x_axis, NRV_new_plot, color='purple', linewidth=1.5, label='NRV')
+# ax_si.set_ylabel("NRV", color='purple', fontweight='bold')
+# ax_si.tick_params(axis='y', labelcolor='purple')
+# max_si = max(abs(NRV_new_plot.min()), abs(NRV_new_plot.max()))
+# marge = max_si * 0.1
+# ax_si.set_ylim(-(max_si + marge), max_si + marge)
+# ax_si.axhline(0, color='black', linewidth=0.8, linestyle='-', alpha=0.7)  # Ligne zéro
 
-plt.tight_layout()
+# ax_action = ax_si.twinx()
+# max_price = max(abs(min(Price_plot)), abs(max(Price_plot)))
+# marge_price = max_price * 0.1 if max_price > 0 else 1.0
 
-plt.savefig(os.path.join(DOSSIER_RUN, "NRV New - Price on Dataset (TD3) .png"), dpi=300)
-plt.show()
+# ax_action.plot(x_axis, Price_plot, color='gold', alpha=0.4, label='Price')
+# ax_action.set_ylabel("Price (€/MWh)", color='gold', fontweight='bold')
+# ax_action.tick_params(axis='y', labelcolor='gold')
+# ax_action.set_ylim(-(max_price + marge_price), max_price + marge_price)
 
-#%% 
+# plt.title("NRV New - Price on Dataset (TD3) ", fontsize=14, fontweight='bold', pad=12)
+# ax_si.set_xlabel("Steps")
+# ax_si.grid(True, linestyle='--', alpha=0.4)
 
-NRV_new_plot = df_test['nrv_new'].to_numpy(dtype=np.float64)
+# plt.tight_layout()
 
-fig_f, ax_f = plt.subplots(figsize=(12, 6))
-ax_f.plot(range(len(NRV_new_plot)), NRV_new_plot, color='purple', linewidth=2.5)
-ax_f.fill_between(range(len(NRV_new_plot)), NRV_new_plot, color='plum', alpha=0.3)
-ax_f.set_title("NRV new (TD3) ", fontsize=14, fontweight='bold')
-ax_f.set_xlabel("Steps hour"); ax_f.set_ylabel("NRV"); ax_f.grid(True, linestyle='--', alpha=0.7)
-plt.tight_layout()
-plt.show()
-fig_f.savefig(os.path.join(DOSSIER_RUN, "NRV new (TD3) .png"), dpi=300)
-plt.close(fig_f) 
+# plt.savefig(os.path.join(DOSSIER_RUN, "NRV New - Price on Dataset (TD3) .png"), dpi=300)
+# plt.show()
+
+# #%% 
+
+# NRV_new_plot = df_test['nrv_new'].to_numpy(dtype=np.float64)
+
+# fig_f, ax_f = plt.subplots(figsize=(12, 6))
+# ax_f.plot(range(len(NRV_new_plot)), NRV_new_plot, color='purple', linewidth=2.5)
+# ax_f.fill_between(range(len(NRV_new_plot)), NRV_new_plot, color='plum', alpha=0.3)
+# ax_f.set_title("NRV new (TD3) ", fontsize=14, fontweight='bold')
+# ax_f.set_xlabel("Steps hour"); ax_f.set_ylabel("NRV"); ax_f.grid(True, linestyle='--', alpha=0.7)
+# plt.tight_layout()
+# plt.show()
+# fig_f.savefig(os.path.join(DOSSIER_RUN, "NRV new (TD3) .png"), dpi=300)
+# plt.close(fig_f) 
