@@ -104,7 +104,7 @@ def main():
     initial_collect_steps = batch_size * 20
     # %% ------- Print & Export Hyperparameters Summary -------
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    save_dir = "C:\\Document_UMONS\\Thèse-Code\\SI_side_repository\\Runs\\Minute\\" + Environment_type
+    save_dir = "C:\\Document_UMONS\\Thèse-Code\\SI_side_repository\\Runs\\Minute\\" + Environment_type +"\\multiday_ep"
     save_dir = os.path.join(save_dir, f'Run_TD3_PyTorch_min_{timestamp}_EARLY_STOP_S{seed}_TEST')
 
     if not os.path.exists(save_dir):
@@ -155,7 +155,6 @@ def main():
     
     num_training_episodes = num_epochs * train_env.n_episodes
     num_val_episodes = validation_env.n_episodes
-
     # %% -------Instanciation de l'Agent PyTorch-------
     input_dims = (92,)
     n_actions = 1

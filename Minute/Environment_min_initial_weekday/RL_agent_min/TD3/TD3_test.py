@@ -197,7 +197,7 @@ total_profit = sum(episode_profit_list)
 chemin_resultats = os.path.join(DOSSIER_RUN, "Test_Evaluation_Results.txt")
 with open(chemin_resultats, "w", encoding="utf-8") as f:
     f.write("="*50 + "\n")
-    f.write(f"Number of tested days: {num_episodes} days\n")
+    f.write(f"Number of tested days: {env_eval.n_days} days\n")
     f.write(f"Total Cumulative Profit: {total_profit:,.2f} €\n")
     f.write(f"Daily Average: {average_return:,.2f} € / day\n")
     f.write("="*50 + "\n")

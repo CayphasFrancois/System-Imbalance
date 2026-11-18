@@ -12,15 +12,15 @@ import faulthandler, psutil
 
 proc = psutil.Process(os.getpid())
 Result_dir = r"C:\\Document_UMONS\\Thèse-Code\\SI_side_repository"
-Environment_dir = r"C:\\Document_UMONS\\Thèse-Code\\System_Imbalance\\System-Imbalance\\Environment_quarter"
+Environment_dir = r"C:\\Document_UMONS\\Thèse-Code\\System_Imbalance\\System-Imbalance\\Quarter\\Environment_quarter_initial_weekday"
 sys.path.append(Result_dir)
 sys.path.append(Environment_dir)
 faulthandler.enable(open(os.path.join(Result_dir, "crash.log"), "ab"))
 
 # --- IMPORTATION DU PIPELINE PYTORCH (Environnements & Prétraitement) ---
-from Environment_quarter_initial import Environment, importdata, collect_data #type:ignore
+from Environment_quarter_initial_weekday import Environment, importdata, collect_data #type:ignore
 from TD3_torch import Agent, set_seed
-Environment_type = "Initial"
+Environment_type = "Initial_Weekday"
 
 
 # %% ------- Synchronized Manual Evaluation Loop Interface (PyTorch) -------
@@ -104,7 +104,7 @@ def main():
     initial_collect_steps = batch_size * 20
     # %% ------- Print & Export Hyperparameters Summary -------
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    save_dir = "C:\\Document_UMONS\\Thèse-Code\\SI_side_repository\\Runs\\Quarter\\" + Environment_type
+    save_dir = "C:\\Document_UMONS\\Thèse-Code\\SI_side_repository\\Runs\\Quarter\\" + Environment_type + "\\dayly_ep"
     save_dir = os.path.join(save_dir, f'Run_TD3_PyTorch_quarter_{timestamp}_EARLY_STOP_S{seed}_TEST')
 
     if not os.path.exists(save_dir):
