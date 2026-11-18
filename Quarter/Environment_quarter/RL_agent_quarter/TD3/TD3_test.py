@@ -14,7 +14,7 @@ import faulthandler, psutil
 
 proc = psutil.Process(os.getpid())
 Result_dir = r"C:\\Document_UMONS\\Thèse-Code\\SI_side_repository"
-Environment_dir = r"C:\\Document_UMONS\\Thèse-Code\\System_Imbalance\\System-Imbalance\\Environment_quarter"
+Environment_dir = r"C:\\Document_UMONS\\Thèse-Code\\System_Imbalance\\System-Imbalance\\Quarter\\Environment_quarter"
 sys.path.append(Environment_dir)
 faulthandler.enable(open(os.path.join(Result_dir, "crash.log"), "ab"))
 
@@ -26,7 +26,7 @@ from TD3_torch import Agent
 # %%=============================================================================
 # 1. TARGET DIRECTORIES
 # ==============================================================================
-DOSSIER_RUN = r"C:\\Document_UMONS\\Thèse-Code\\SI_side_repository\\Runs\\Quarter\\Initial\\Run_TD3_PyTorch_quarter_20261113_112007_EARLY_STOP_S1_TEST"  #Fichier où est stocké le modèle sauvegardé 
+DOSSIER_RUN = r""  #Fichier où est stocké le modèle sauvegardé 
 TXT_PATH = os.path.join(DOSSIER_RUN, "hyperparameters.txt")
 
 # %% =============================================================================
@@ -53,9 +53,9 @@ EP_ratio = 1
 roundtrip_efficiency = 0.9
 battery_replacement_cost = 3e+5 * battery_max_power * EP_ratio
 
-path_training = os.path.normpath('C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/Dataset_Train_2025_2026_Current_SI.csv')
-path_validation = os.path.normpath('C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/Dataset_Val_2025_2026_Current_SI.csv')
-path_test = os.path.normpath('C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/Dataset_Test_2025_2026_Current_SI.csv')
+path_training = os.path.normpath('C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/Split_initial/Dataset_Train_2025_2026_Current_SI.csv')
+path_validation = os.path.normpath('C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/Split_initial/Dataset_Val_2025_2026_Current_SI.csv')
+path_test = os.path.normpath('C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/Split_initial/Dataset_Test_2025_2026_Current_SI.csv')
 path_merit_order = os.path.normpath('C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/merit_parsed.pkl')
 # %% =============================================================================
 # 4. DATA IMPORT AND MIDNIGHT ANCHOR CONFIGURATIONS

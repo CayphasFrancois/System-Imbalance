@@ -1,0 +1,3 @@
+Split monthly : train - val - test
+
+Version avec une séparation des données mensuelles où tous les épisodes sont des jours. 

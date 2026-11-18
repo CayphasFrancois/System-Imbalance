@@ -191,6 +191,8 @@ episode_profit_list=[]
 average_return,episode_profit_list,state_reward_action = evaluate_agent(env_eval,agent,num_episodes)
 total_profit = sum(episode_profit_list)
 
+print(f"Total Cumulative Profit: {total_profit:,.2f} €\n")
+print(f"Daily Average: {average_return:,.2f} € / day\n")
 
 #%% Stockage des résultats dans un fichier texte
 

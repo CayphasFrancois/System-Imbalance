@@ -68,9 +68,9 @@ def main():
     penal = 30*15
 
     # Input training data matrices including warm-up sliding indices blocks
-    path_training = os.path.normpath('C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/Dataset_Train_2025_2026_Current_SI.csv')
-    path_validation = os.path.normpath('C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/Dataset_Val_2025_2026_Current_SI.csv')
-    path_test = os.path.normpath('C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/Dataset_Test_2025_2026_Current_SI.csv')
+    path_training = os.path.normpath('C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/Split_initial/Dataset_Train_2025_2026_Current_SI.csv')
+    path_validation = os.path.normpath('C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/Split_initial/Dataset_Val_2025_2026_Current_SI.csv')
+    path_test = os.path.normpath('C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/Split_initial/Dataset_Test_2025_2026_Current_SI.csv')
     path_merit_order = os.path.normpath('C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/merit_parsed.pkl')
 
     print('Importing data + preprocessing (PyTorch Pipeline)...')
@@ -136,7 +136,7 @@ def main():
         f.write(f"  - Penalty (Constraint)       : {penal}\n")
         f.write(f"  - Tuned_initial_exp          : {tuned_initial_exp}\n")
         f.write(f"  - State                      : SoC + 6 calendar variables + window (size = 4) * (SI_prevbatteryaction, Price_final_QH, NRV_withoutIGCC_postbatteryaction)\n")
-        f.write(f"  - State                      : 19 \n")
+        f.write(f"  - State                      : 22 \n")
         f.write(f"  - Ce qui change              : lr 10-5, batch_size 128")
         f.write(f"\n{'*'*40}\n")
 
