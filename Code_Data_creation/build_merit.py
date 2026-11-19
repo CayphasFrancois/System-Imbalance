@@ -1,7 +1,7 @@
 import json, ast, pickle, pandas as pd
 
-df = pd.read_csv(r"C:\Document_UMONS\Thèse-Code\TD3_Minute\Data_Now\merit_order_dictionaries.csv", sep=";")
-keys = pd.to_datetime(df["Datetime"]).astype("datetime64[ns]").astype("int64")
+df = pd.read_csv(r"C:\Document_UMONS\Thèse-Code\SI_side_repository\Data\merit_order_dictionaries.csv", sep=";")
+keys = pd.to_datetime(df["Datetime_local"]).astype("datetime64[ns]").astype("int64")
 
 def parse(s):
     return json.loads(s)  # le format est du JSON valide (guillemets doubles, listes)
@@ -21,6 +21,6 @@ for n, (k, a, b) in enumerate(zip(keys, df["incremental_merit_order"], df["decre
 
 print("lignes :", len(cache), "| essais supplémentaires :", len(retries))
 print(retries[:20])
-with open(r"C:\Document_UMONS\Thèse-Code\TD3_Minute\Data_Now\merit_parsed.pkl", "wb") as f:
+with open(r"C:\Document_UMONS\Thèse-Code\SI_side_repository\Data\merit_parsed.pkl", "wb") as f:
     pickle.dump(cache, f)
 print ("done")

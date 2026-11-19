@@ -13,13 +13,13 @@ sys.path.append(Environment_dir)
 from Environment_min_initial import Environment, importdata  # type:ignore
 
 LOCAL_TZ = "Europe/Brussels"
-DATA_DIR = "C:/Document_UMONS/Thèse-Code/SI_side_repository/Data"
+DATA_DIR = "C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/Split_initial"
 
 # %% ------- Prix de l'agent (action nulle = prix sans batterie) -------
 path_training = os.path.normpath(f"{DATA_DIR}/Dataset_Train_2025_2026_Current_SI.csv")
 path_validation = os.path.normpath(f"{DATA_DIR}/Dataset_Val_2025_2026_Current_SI.csv")
 path_test = os.path.normpath(f"{DATA_DIR}/Dataset_Test_2025_2026_Current_SI.csv")
-path_merit_order = os.path.normpath(f"{DATA_DIR}/merit_parsed.pkl")
+path_merit_order = os.path.normpath("C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/merit_parsed.pkl")
 
 print("Importing data + preprocessing...")
 _, _, df_test, merit_order_dict, mean, std = importdata(
@@ -98,8 +98,7 @@ def drop_dups(df, name):
     return df
 
 
-path_Elia_min = os.path.normpath(
-    f"{DATA_DIR}/Raw_Data_Elia/Imbalance price per minute_05_03_25-25_10_2026.csv")
+path_Elia_min = os.path.normpath( "C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/Raw_Data_Elia/Imbalance price per minute_05_03_25-25_10_2026.csv")
 df_elia_min = load_elia(path_Elia_min)
 df_elia_min = df_elia_min[df_elia_min['Datetime'].dt.minute % 15 == 14].copy()
 df_elia_min['qh'] = df_elia_min['Datetime'].dt.floor('15min')
@@ -108,8 +107,7 @@ df_elia_min = (df_elia_min[['qh', 'Imbalance Price', 'Quality status']]
                                 'Quality status': 'quality_min'}))
 df_elia_min = drop_dups(df_elia_min, "Elia minute")
 
-path_Elia_quarter = os.path.normpath(
-    f"{DATA_DIR}/Raw_Data_Elia/Imbalance prices per quarter-hour_05_03_25-25_10_2026.csv")
+path_Elia_quarter = os.path.normpath("C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/Raw_Data_Elia/Imbalance prices per quarter-hour_05_03_25-25_10_2026.csv")
 df_elia_q = load_elia(path_Elia_quarter)
 df_elia_q['qh'] = df_elia_q['Datetime']
 df_elia_q = (df_elia_q[['qh', 'Imbalance Price', 'Quality status']]
