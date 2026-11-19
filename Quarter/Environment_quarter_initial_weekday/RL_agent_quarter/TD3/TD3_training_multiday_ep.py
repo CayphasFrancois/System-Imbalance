@@ -29,6 +29,7 @@ def evaluate_agent(env,agent,num_episodes=None):
     num_episodes = env.n_episodes if num_episodes is None else num_episodes
     agent.actor.eval()
     total = 0.0
+    steps=0
     ep_profit_list = []
     state_reward_action_list = []
     for _ in range(num_episodes):
@@ -42,9 +43,12 @@ def evaluate_agent(env,agent,num_episodes=None):
             state, r, action, done = env.step(a)
             state_reward_action_list.append((state_pre,r,a,action))
             ep_profit += r
-
-        total += ep_profit
-        ep_profit_list.append(ep_profit)
+            steps+=1
+            if steps == 96:
+                ep_profit_list.append(ep_profit)
+                total += ep_profit
+                ep_profit=0
+                steps=0
     n_days = len(env._day_starts)    
     gc.collect()
     return total / n_days,ep_profit_list,state_reward_action_list
@@ -68,9 +72,9 @@ def main():
     penal = 30*15
 
     # Input training data matrices including warm-up sliding indices blocks
-    path_training = os.path.normpath('C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/Split_initial/Dataset_Train_2025_2026_Current_SI.csv')
-    path_validation = os.path.normpath('C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/Split_initial/Dataset_Val_2025_2026_Current_SI.csv')
-    path_test = os.path.normpath('C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/Split_initial/Dataset_Test_2025_2026_Current_SI.csv')
+    path_training = os.path.normpath('C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/Split_Train_Val_Month_Test_End/Dataset_Train_2025_2026_Current_SI.csv')
+    path_validation = os.path.normpath('C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/Split_Train_Val_Month_Test_End/Dataset_Val_2025_2026_Current_SI.csv')
+    path_test = os.path.normpath('C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/Split_Train_Val_Month_Test_End/Dataset_Test_2025_2026_Current_SI.csv')
     path_merit_order = os.path.normpath('C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/merit_parsed.pkl')
 
     print('Importing data + preprocessing (PyTorch Pipeline)...')

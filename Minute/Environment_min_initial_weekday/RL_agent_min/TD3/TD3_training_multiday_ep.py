@@ -29,6 +29,7 @@ def evaluate_agent(env,agent,num_episodes=None):
     num_episodes = env.n_episodes if num_episodes is None else num_episodes
     agent.actor.eval()
     total = 0.0
+    steps=0
     ep_profit_list = []
     state_reward_action_list = []
     for _ in range(num_episodes):
@@ -40,11 +41,15 @@ def evaluate_agent(env,agent,num_episodes=None):
                                 .to(agent.actor.device)).cpu().numpy()[0]
                 state_pre=state.copy()
             state, r, action, done = env.step(a)
-            state_reward_action_list.append((state_pre,r,a,action))
+            state_reward_action_list.append((state,r,a,action))
             ep_profit += r
-
-        total += ep_profit
-        ep_profit_list.append(ep_profit)
+            steps+=1
+            if steps == 1440:
+                ep_profit_list.append(ep_profit)
+                total += ep_profit
+                ep_profit=0
+                steps=0
+        
     n_days = len(env._day_starts)
     gc.collect()
     return total / n_days,ep_profit_list,state_reward_action_list
