@@ -26,7 +26,7 @@ from TD3_torch import Agent
 # %%=============================================================================
 # 1. TARGET DIRECTORIES
 # ==============================================================================
-DOSSIER_RUN = r""  #Fichier où est stocké le modèle sauvegardé 
+DOSSIER_RUN = r"C:\Document_UMONS\Thèse-Code\SI_side_repository\Runs\Quarter\Initial_Weekday\multiday_ep\Run_TD3_PyTorch_quarter_20261120_085033_EARLY_STOP_S1_TEST"  #Fichier où est stocké le modèle sauvegardé 
 TXT_PATH = os.path.join(DOSSIER_RUN, "hyperparameters.txt")
 
 # %% =============================================================================
@@ -53,9 +53,9 @@ EP_ratio = 1
 roundtrip_efficiency = 0.9
 battery_replacement_cost = 3e+5 * battery_max_power * EP_ratio
 
-path_training = os.path.normpath('C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/Dataset_Train_2025_2026_Current_SI.csv')
-path_validation = os.path.normpath('C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/Dataset_Val_2025_2026_Current_SI.csv')
-path_test = os.path.normpath('C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/Dataset_Test_2025_2026_Current_SI.csv')
+path_training = os.path.normpath('C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/Split_Train_Val_Month_Test_End/Dataset_Train_2025_2026_Current_SI.csv')
+path_validation = os.path.normpath('C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/Split_Train_Val_Month_Test_End/Dataset_Val_2025_2026_Current_SI.csv')
+path_test = os.path.normpath('C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/Split_Train_Val_Month_Test_End/Dataset_Test_2025_2026_Current_SI.csv')
 path_merit_order = os.path.normpath('C:/Document_UMONS/Thèse-Code/SI_side_repository/Data/merit_parsed.pkl')
 # %% =============================================================================
 # 4. DATA IMPORT AND MIDNIGHT ANCHOR CONFIGURATIONS
@@ -212,36 +212,36 @@ def day_slice_NRV(env, k):
     y = x.reshape(96, 15).mean(axis=1)
     return y
 
-# #%% Graphique Profit/jour
-# fig_f, ax_f = plt.subplots(figsize=(12, 6))
-# ax_f.plot(range(num_episodes), episode_profit_list, color='darkorange', linewidth=2.5)
-# ax_f.fill_between(range(num_episodes), episode_profit_list, color='navajowhite', alpha=0.3)
-# ax_f.set_title("Average Financial Performance per day on Dataset (TD3)", fontsize=14, fontweight='bold')
-# ax_f.set_xlabel("Days"); ax_f.set_ylabel("Profit/day (€)"); ax_f.grid(True, linestyle='--', alpha=0.7)
-# plt.tight_layout()
-# plt.show()
-# fig_f.savefig(os.path.join(DOSSIER_RUN, "Profit_per_day.png"), dpi=300)
-# plt.close(fig_f)
-# print(f"\nFINAL RESULT: {total_profit:,.2f} € | Avg: {average_return:,.2f} €/day")
+#%% Graphique Profit/jour
+fig_f, ax_f = plt.subplots(figsize=(12, 6))
+ax_f.plot(range(env_eval.n_days), episode_profit_list, color='darkorange', linewidth=2.5)
+ax_f.fill_between(range(env_eval.n_days), episode_profit_list, color='navajowhite', alpha=0.3)
+ax_f.set_title("Average Financial Performance per day on Dataset (TD3)", fontsize=14, fontweight='bold')
+ax_f.set_xlabel("Days"); ax_f.set_ylabel("Profit/day (€)"); ax_f.grid(True, linestyle='--', alpha=0.7)
+plt.tight_layout()
+plt.show()
+fig_f.savefig(os.path.join(DOSSIER_RUN, "Profit_per_day.png"), dpi=300)
+plt.close(fig_f)
+print(f"\nFINAL RESULT: {total_profit:,.2f} € | Avg: {average_return:,.2f} €/day")
 
-# #%% Graphique Profit cumulé
-# cumulated_profit = []
-# sum_profit= 0 
-# for i in range (len(episode_profit_list)+1): 
-#     cumulated_profit.append(sum_profit)
-#     if i <= len(episode_profit_list)-1:
-#         sum_profit+=episode_profit_list[i]
+#%% Graphique Profit cumulé
+cumulated_profit = []
+sum_profit= 0 
+for i in range (len(episode_profit_list)+1): 
+    cumulated_profit.append(sum_profit)
+    if i <= len(episode_profit_list)-1:
+        sum_profit+=episode_profit_list[i]
 
-# fig_f, ax_f = plt.subplots(figsize=(12, 6))
-# ax_f.plot(range(len(cumulated_profit)), cumulated_profit, color='darkorange', linewidth=2.5)
-# ax_f.fill_between(range(len(cumulated_profit)), cumulated_profit, color='navajowhite', alpha=0.3)
-# ax_f.set_title("Cumulative Financial Performance on Dataset (TD3)", fontsize=14, fontweight='bold')
-# ax_f.set_xlabel("Days"); ax_f.set_ylabel("Total Profit (€)"); ax_f.grid(True, linestyle='--', alpha=0.7)
-# plt.tight_layout()
-# plt.show()
-# fig_f.savefig(os.path.join(DOSSIER_RUN, "Global_Results.png"), dpi=300)
-# plt.close(fig_f) 
-# # %% Graphique SI/Action
+fig_f, ax_f = plt.subplots(figsize=(12, 6))
+ax_f.plot(range(len(cumulated_profit)), cumulated_profit, color='darkorange', linewidth=2.5)
+ax_f.fill_between(range(len(cumulated_profit)), cumulated_profit, color='navajowhite', alpha=0.3)
+ax_f.set_title("Cumulative Financial Performance on Dataset (TD3)", fontsize=14, fontweight='bold')
+ax_f.set_xlabel("Days"); ax_f.set_ylabel("Total Profit (€)"); ax_f.grid(True, linestyle='--', alpha=0.7)
+plt.tight_layout()
+plt.show()
+fig_f.savefig(os.path.join(DOSSIER_RUN, "Global_Results.png"), dpi=300)
+plt.close(fig_f) 
+# %% Graphique SI/Action
 
 # # x_axis = np.arange(3*96)
 # # si_data = env.df_system['system imbalance'].to_numpy(dtype=np.float64)
@@ -280,20 +280,39 @@ def day_slice_NRV(env, k):
 # plt.savefig(os.path.join(DOSSIER_RUN, "SI - Action on Dataset (TD3) .png"), dpi=300)
 # plt.show()
 
-# #%% Graphique SoC 
+#%% Graphique SoC 
+SoC_data = [item[0][0] for item in state_reward_action]
+SoC_plot = (SoC_data)
 
-# SoC_data = [item[0][0] for item in state_reward_action]
-# SoC_plot = np.concatenate ([SoC_data[28*96:29*96], SoC_data[41*96:42*96], SoC_data[75*96:76*96]]).flatten()
+fig_f, ax_f = plt.subplots(figsize=(12, 6))
+ax_f.plot(range(len(SoC_plot)), SoC_plot, color='crimson', linewidth=2.5)
+ax_f.fill_between(range(len(SoC_plot)), SoC_plot, color='lightcoral', alpha=0.3)
+ax_f.set_title("State of Charge (TD3) ", fontsize=14, fontweight='bold')
+ax_f.set_xlabel("Steps"); ax_f.set_ylabel("SoC"); ax_f.grid(True, linestyle='--', alpha=0.7)
+plt.tight_layout()
+plt.show()
+fig_f.savefig(os.path.join(DOSSIER_RUN, "State of Charge (TD3) .png"), dpi=300)
+plt.close(fig_f) 
 
-# fig_f, ax_f = plt.subplots(figsize=(12, 6))
-# ax_f.plot(range(len(SoC_plot)), SoC_plot, color='crimson', linewidth=2.5)
-# ax_f.fill_between(range(len(SoC_plot)), SoC_plot, color='lightcoral', alpha=0.3)
-# ax_f.set_title("State of Charge (TD3) (3 days)", fontsize=14, fontweight='bold')
-# ax_f.set_xlabel("Steps"); ax_f.set_ylabel("SoC"); ax_f.grid(True, linestyle='--', alpha=0.7)
-# plt.tight_layout()
-# plt.show()
-# fig_f.savefig(os.path.join(DOSSIER_RUN, "State of Charge (TD3) (3 days).png"), dpi=300)
-# plt.close(fig_f) 
+#%% Graphique SoC 
+SoC_data = [item[0][0] for item in state_reward_action]
+last_soc= []
+for i in range (env_eval.n_days):
+    SoC_plot=SoC_data[i*96:(i+1)*96]
+
+    fig_f, ax_f = plt.subplots(figsize=(12, 6))
+    ax_f.plot(range(len(SoC_plot)), SoC_plot, color='crimson', linewidth=2.5)
+    ax_f.fill_between(range(len(SoC_plot)), SoC_plot, color='lightcoral', alpha=0.3)
+    ax_f.set_title("State of Charge (TD3) ", fontsize=14, fontweight='bold')
+    ax_f.set_xlabel("Steps"); ax_f.set_ylabel("SoC"); ax_f.grid(True, linestyle='--', alpha=0.7)
+    plt.tight_layout()
+    # plt.show()
+    a = os.path.join(DOSSIER_RUN, "SoC_plot")
+    os.makedirs(a, exist_ok=True)
+    fig_f.savefig(os.path.join(a, f"State of Charge (TD3) (day {i+1}).png"), dpi=300)
+    plt.close(fig_f) 
+    last_soc.append(SoC_plot[-1])
+print (f"Daily Mean of the last SoC value : ",float(np.mean(last_soc)))
 
 # # %% Graphiqe SoC/Action
 

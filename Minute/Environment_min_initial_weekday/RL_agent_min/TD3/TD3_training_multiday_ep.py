@@ -105,7 +105,7 @@ def main():
     eval_interval = 60*24*100    
 
     # %% ------- Training setup variables -------
-    noise_stddev = 0.2
+    noise_stddev = 0.3
     initial_collect_steps = batch_size * 20
     # %% ------- Print & Export Hyperparameters Summary -------
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -131,7 +131,7 @@ def main():
         f.write(f"  - Hidden layers (Actor)      : {layer_size}\n")
         f.write(f"  - Hidden layers (Critic)     : {layer_size}\n")
         f.write(f"  - Exploration Noise (Std)    : {noise_stddev}\n")
-        f.write(f"  - Policy Noise               : 0.2\n")
+        f.write(f"  - Policy Noise               : 0.3\n")
         f.write(f"  - Noise Clip                 : 0.5\n")
         f.write(f"  - Update Actor Iterations    : {actor_update_T}\n")
         f.write(f"  - Update Critic Iterations   : {critic_update_T}\n")
@@ -142,7 +142,7 @@ def main():
         f.write(f"  - Tuned_initial_exp          : {tuned_initial_exp}\n")
         f.write(f"  - State                      : SoC + 6 calendar variables + weekday (embedlayer) + window (size = 4) * (SI_prevbatteryaction, Price_final_QH, NRV_withoutIGCC_postbatteryaction) + 14 (number of minutes) * (SI_premodif, ACE, IGCC, NRV_new_postbaterryaction,Price_predictionbasedonQHvalues)\n")
         f.write(f"  - State dims                 : 92 \n")
-        f.write(f"  - Ce qui change              : ")
+        f.write(f"  - Ce qui change              : noise 0.3")
         f.write(f"\n{'*'*40}\n")
 
     print(f"Dossier créé et hyperparamètres sauvés : {save_dir}")
@@ -177,7 +177,7 @@ def main():
             layer2_size=layer_size[1],
             batch_size=batch_size,
             exploration_noise=noise_stddev,
-            policy_noise=0.2,
+            policy_noise=0.3,
             noise_clip=0.5,
             update_actor_iter=actor_update_T,
             seed=seed,

@@ -137,7 +137,7 @@ def main():
         f.write(f"  - Tuned_initial_exp          : {tuned_initial_exp}\n")
         f.write(f"  - State                      : SoC + 6 calendar variables + window (size = 4) * (SI_prevbatteryaction, Price_final_QH, NRV_withoutIGCC_postbatteryaction)\n")
         f.write(f"  - State                      : 22 \n")
-        f.write(f"  - Ce qui change              : lr 10-5, batch_size 128")
+        f.write(f"  - Ce qui change              : ")
         f.write(f"\n{'*'*40}\n")
 
     print(f"Dossier créé et hyperparamètres sauvés : {save_dir}")

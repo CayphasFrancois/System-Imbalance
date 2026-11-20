@@ -41,7 +41,7 @@ def evaluate_agent(env,agent,num_episodes=None):
                                 .to(agent.actor.device)).cpu().numpy()[0]
                 state_pre=state.copy()
             state, r, action, done = env.step(a)
-            state_reward_action_list.append((state_pre,r,a,action))
+            state_reward_action_list.append((state,r,a,action))
             ep_profit += r
             steps+=1
             if steps == 96:
@@ -104,7 +104,7 @@ def main():
     eval_interval = 96*100    
 
     # %% ------- Training setup variables -------
-    noise_stddev = 0.2
+    noise_stddev = 0.3
     initial_collect_steps = batch_size * 20
     # %% ------- Print & Export Hyperparameters Summary -------
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -130,7 +130,7 @@ def main():
         f.write(f"  - Hidden layers (Actor)      : {layer_size}\n")
         f.write(f"  - Hidden layers (Critic)     : {layer_size}\n")
         f.write(f"  - Exploration Noise (Std)    : {noise_stddev}\n")
-        f.write(f"  - Policy Noise               : 0.2\n")
+        f.write(f"  - Policy Noise               : 0.3\n")
         f.write(f"  - Noise Clip                 : 0.5\n")
         f.write(f"  - Update Actor Iterations    : {actor_update_T}\n")
         f.write(f"  - Update Critic Iterations   : {critic_update_T}\n")
@@ -141,7 +141,7 @@ def main():
         f.write(f"  - Tuned_initial_exp          : {tuned_initial_exp}\n")
         f.write(f"  - State                      : SoC + 6 calendar variables + window (size = 4) * (SI_prevbatteryaction, Price_final_QH, NRV_withoutIGCC_postbatteryaction)\n")
         f.write(f"  - State                      : 22 \n")
-        f.write(f"  - Ce qui change              : lr 10-5, batch_size 128")
+        f.write(f"  - Ce qui change              : noise O.3")
         f.write(f"\n{'*'*40}\n")
 
     print(f"Dossier créé et hyperparamètres sauvés : {save_dir}")
@@ -176,7 +176,7 @@ def main():
             layer2_size=layer_size[1],
             batch_size=batch_size,
             exploration_noise=noise_stddev,
-            policy_noise=0.2,
+            policy_noise=0.3,
             noise_clip=0.5,
             update_actor_iter=actor_update_T,
             seed=seed,

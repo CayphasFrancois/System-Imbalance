@@ -26,8 +26,8 @@ from TD3_torch import Agent
 # %%=============================================================================
 # 1. TARGET DIRECTORIES
 # ==============================================================================
-DOSSIER_RUN = r"C:\Document_UMONS\Thèse-Code\SI_side_repository\Runs\Minute\Initial_Weekday\multiday_ep\Run_TD3_PyTorch_min_20261118_082302_EARLY_STOP_S1_TEST"  #Fichier où est stocké le modèle sauvegardé 
-#DOSSIER_RUN = r"C:\Document_UMONS\Thèse-Code\SI_side_repository\Runs\Minute\Initial_Weekday\dayly_ep\Run_TD3_PyTorch_min_20261119_080513_EARLY_STOP_S1_TEST"
+#DOSSIER_RUN = r"C:\Document_UMONS\Thèse-Code\SI_side_repository\Runs\Minute\Initial_Weekday\multiday_ep\Run_TD3_PyTorch_min_20261120_091209_EARLY_STOP_S1_TEST"  #Fichier où est stocké le modèle sauvegardé 
+DOSSIER_RUN = r"C:\Document_UMONS\Thèse-Code\SI_side_repository\Runs\Minute\Initial_Weekday\dayly_ep\Run_TD3_PyTorch_min_20261119_080513_EARLY_STOP_S1_TEST"
 TXT_PATH = os.path.join(DOSSIER_RUN, "hyperparameters.txt")
 
 # %% =============================================================================
@@ -286,7 +286,7 @@ SoC_plot = (SoC_data)
 fig_f, ax_f = plt.subplots(figsize=(12, 6))
 ax_f.plot(range(len(SoC_plot)), SoC_plot, color='crimson', linewidth=2.5)
 ax_f.fill_between(range(len(SoC_plot)), SoC_plot, color='lightcoral', alpha=0.3)
-ax_f.set_title("State of Charge (TD3) (3 days)", fontsize=14, fontweight='bold')
+ax_f.set_title("State of Charge (TD3) ", fontsize=14, fontweight='bold')
 ax_f.set_xlabel("Steps"); ax_f.set_ylabel("SoC"); ax_f.grid(True, linestyle='--', alpha=0.7)
 plt.tight_layout()
 plt.show()
@@ -302,7 +302,7 @@ for i in range (env_eval.n_days):
     fig_f, ax_f = plt.subplots(figsize=(12, 6))
     ax_f.plot(range(len(SoC_plot)), SoC_plot, color='crimson', linewidth=2.5)
     ax_f.fill_between(range(len(SoC_plot)), SoC_plot, color='lightcoral', alpha=0.3)
-    ax_f.set_title("State of Charge (TD3) (3 days)", fontsize=14, fontweight='bold')
+    ax_f.set_title("State of Charge (TD3) ", fontsize=14, fontweight='bold')
     ax_f.set_xlabel("Steps"); ax_f.set_ylabel("SoC"); ax_f.grid(True, linestyle='--', alpha=0.7)
     plt.tight_layout()
     # plt.show()
