@@ -297,10 +297,15 @@ def main():
         'Train_Reward_Eur_Jour': average_train_rewards
     })
 
+    df_summary = pd.DataFrame({
+        'Training time (h)': [nb_hours],
+        'Training time (s)': [td],
+    })
     excel_path = os.path.join(save_dir, "Historique_Entrainement_TD3.xlsx")
     with pd.ExcelWriter(excel_path, engine='xlsxwriter') as writer:
         df_val_stock.to_excel(writer, sheet_name='Validation_Reward', index=False)
         df_train_stock.to_excel(writer, sheet_name='Train_Reward', index=False)
+        df_summary.to_excel(writer, sheet_name='Summary', index=False)
 
     print(f"-> Données brutes sauvegardées avec succès dans : {excel_path}")
 
