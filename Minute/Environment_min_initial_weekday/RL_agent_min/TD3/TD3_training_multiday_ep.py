@@ -92,20 +92,25 @@ def main():
 
     gamma = 0.99**(1/15)
     tau = 5*1e-3
-    actor_lr = 1e-5
-    critic_lr = 1e-5
+    actor_lr = 1e-3
+    critic_lr = 1e-3
 
     actor_update_T = 4
     critic_update_T = 1
 
     layer_size=(500,500)
 
+    min_lr=1e-7
+    lr_factor=0.1
+    lr_patience=3
+    lr_threshold=0.5
+
     # TIMELINE TRACKING INTERVALS
     log_interval = 60*24*50 
     eval_interval = 60*24*100    
 
     # %% ------- Training setup variables -------
-    noise_stddev = 0.3
+    noise_stddev = 0.2
     initial_collect_steps = batch_size * 20
     # %% ------- Print & Export Hyperparameters Summary -------
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -131,7 +136,7 @@ def main():
         f.write(f"  - Hidden layers (Actor)      : {layer_size}\n")
         f.write(f"  - Hidden layers (Critic)     : {layer_size}\n")
         f.write(f"  - Exploration Noise (Std)    : {noise_stddev}\n")
-        f.write(f"  - Policy Noise               : 0.3\n")
+        f.write(f"  - Policy Noise               : 0.2\n")
         f.write(f"  - Noise Clip                 : 0.5\n")
         f.write(f"  - Update Actor Iterations    : {actor_update_T}\n")
         f.write(f"  - Update Critic Iterations   : {critic_update_T}\n")
@@ -142,7 +147,11 @@ def main():
         f.write(f"  - Tuned_initial_exp          : {tuned_initial_exp}\n")
         f.write(f"  - State                      : SoC + 6 calendar variables + weekday (embedlayer) + window (size = 4) * (SI_prevbatteryaction, Price_final_QH, NRV_withoutIGCC_postbatteryaction) + 14 (number of minutes) * (SI_premodif, ACE, IGCC, NRV_new_postbaterryaction,Price_predictionbasedonQHvalues)\n")
         f.write(f"  - State dims                 : 92 \n")
-        f.write(f"  - Ce qui change              : noise 0.3")
+        f.write(f"  - Min_lr                     : {min_lr}\n")
+        f.write(f"  - Lr_factor                  : {lr_factor}\n")
+        f.write(f"  - Lr_patience                : {lr_patience}\n")
+        f.write(f"  - Lr_threshold               : {lr_threshold}\n")
+        f.write(f"  - Ce qui change              : Lr plateau + lr 1e-3")
         f.write(f"\n{'*'*40}\n")
 
     print(f"Dossier créé et hyperparamètres sauvés : {save_dir}")
@@ -177,11 +186,15 @@ def main():
             layer2_size=layer_size[1],
             batch_size=batch_size,
             exploration_noise=noise_stddev,
-            policy_noise=0.3,
+            policy_noise=0.2,
             noise_clip=0.5,
             update_actor_iter=actor_update_T,
             seed=seed,
-            filename=save_dir)
+            filename=save_dir,
+            min_lr=min_lr,
+            lr_factor=lr_factor,
+            lr_patience=lr_patience,
+            lr_threshold=lr_threshold)
 
 
     # %% -------Initial fill (Warm-up / Replay Buffer)-------
@@ -194,6 +207,8 @@ def main():
     avg_return_initial,_,_ = evaluate_agent(validation_env,agent)
     print(f"Average return (before training): {avg_return_initial:.2f} € / day")
     agent.save_models()
+    agent.actor_scheduler.step(avg_return_initial)
+    agent.critic_scheduler.step(avg_return_initial)
     # print(f"Merit hits/misfits : {validation_env.merit_hits/validation_env.merit_miss}")
 
 
@@ -214,6 +229,7 @@ def main():
     print("\n START TRAINING (PyTorch) ... \n")
     global_step = 0
 
+
     for ep in tqdm(range(num_training_episodes), desc="Training Episodes", unit="ep"):
 
         state = train_env.reset()
@@ -230,7 +246,7 @@ def main():
             
             # 2. Entraînement de l'agent (Mise à jour des réseaux Critic et Actor)
             if global_step % critic_update_T == 0:
-                agent.learn()
+                agent.learn()              
 
             state = next_state
             global_step += 1
@@ -267,6 +283,14 @@ def main():
                     print(f" -> Pas d'amélioration suffisante. Patience : {wait_counter} / {patience}")
                     
                 print("-" * 60)
+
+                lr_before = agent.actor.optimizer.param_groups[0]['lr']
+                agent.step_schedulers(actor_metric=avg_return, critic_metric=avg_return)
+                lr_after = agent.actor.optimizer.param_groups[0]['lr']
+                if lr_after < lr_before:
+                    print(f" -> LR réduit ({lr_before:.1e} -> {lr_after:.1e}) : rechargement du meilleur modèle")
+                    agent.load_models()
+                    
 
                 if wait_counter >= patience:
                     print(f"\n[!!!] EARLY STOPPING TRIGGERED [!!!]")

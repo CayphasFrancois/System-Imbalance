@@ -230,7 +230,7 @@ class Agent(object):
                  max_size=1000000, layer1_size=400, layer2_size=300, batch_size=64,
                  exploration_noise=0.1, policy_noise=0.2, noise_clip=0.5,
                  update_actor_iter=2, learn_step_cntr=0, seed=42, filename='_',
-                 embed_dim=3):
+                 embed_dim=3,min_lr=1e-7,lr_factor=0.5,lr_patience=5,lr_threshold=1e-4 ):
 
         self.gamma = gamma
         self.tau = tau
@@ -247,6 +247,11 @@ class Agent(object):
         self.seed = seed
         self.filename = filename
         self.embed_dim = embed_dim
+
+        self.min_lr = min_lr
+        self.lr_factor = lr_factor
+        self.lr_patience =  lr_patience 
+        self.lr_threshold = lr_threshold
 
         set_seed(seed)
         self.device = T.device('cuda:0' if T.cuda.is_available() else 'cpu')
@@ -267,6 +272,24 @@ class Agent(object):
         self.target_critic = CriticNetwork(beta, input_dims, layer1_size, layer2_size,
                                            n_actions=n_actions, name='Target_Critic',
                                            embed_dim=embed_dim, chkpt_dir=filename)
+
+        self.actor_scheduler = T.optim.lr_scheduler.ReduceLROnPlateau(
+            self.actor.optimizer,
+            mode='max',        # 'max' si tu passes un score/reward à maximiser, 'min' pour une loss
+            factor=self.lr_factor,
+            patience=self.lr_patience,
+            min_lr=self.min_lr,
+            threshold=self.lr_threshold,
+            threshold_mode='abs')
+        
+        self.critic_scheduler = T.optim.lr_scheduler.ReduceLROnPlateau(
+            self.critic.optimizer,
+            mode='max',        # 'min' si tu passes une loss/erreur à minimiser
+            factor=self.lr_factor,
+            patience=self.lr_patience,
+            min_lr=self.min_lr,
+            threshold=self.lr_threshold,
+            threshold_mode='abs')
 
         self.target_actor.eval()
         self.target_critic.eval()
@@ -358,3 +381,8 @@ class Agent(object):
         self.critic.load_checkpoint()
         self.target_actor.load_checkpoint()
         self.target_critic.load_checkpoint()
+
+    def step_schedulers(self, actor_metric, critic_metric=None):
+        self.actor_scheduler.step(actor_metric)
+        if critic_metric is not None:
+            self.critic_scheduler.step(critic_metric)
