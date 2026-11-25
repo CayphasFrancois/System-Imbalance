@@ -105,6 +105,7 @@ def main():
 
     # %% ------- Training setup variables -------
     noise_stddev = 0.3
+    policy_noise = 0.3
     initial_collect_steps = batch_size * 20
     # %% ------- Print & Export Hyperparameters Summary -------
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -130,7 +131,7 @@ def main():
         f.write(f"  - Hidden layers (Actor)      : {layer_size}\n")
         f.write(f"  - Hidden layers (Critic)     : {layer_size}\n")
         f.write(f"  - Exploration Noise (Std)    : {noise_stddev}\n")
-        f.write(f"  - Policy Noise               : 0.3\n")
+        f.write(f"  - Policy Noise               : {policy_noise}\n")
         f.write(f"  - Noise Clip                 : 0.5\n")
         f.write(f"  - Update Actor Iterations    : {actor_update_T}\n")
         f.write(f"  - Update Critic Iterations   : {critic_update_T}\n")
@@ -176,7 +177,7 @@ def main():
             layer2_size=layer_size[1],
             batch_size=batch_size,
             exploration_noise=noise_stddev,
-            policy_noise=0.3,
+            policy_noise=policy_noise,
             noise_clip=0.5,
             update_actor_iter=actor_update_T,
             seed=seed,
