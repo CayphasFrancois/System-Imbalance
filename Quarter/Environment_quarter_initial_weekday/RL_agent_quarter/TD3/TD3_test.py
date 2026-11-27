@@ -26,7 +26,8 @@ from TD3_torch import Agent
 # %%=============================================================================
 # 1. TARGET DIRECTORIES
 # ==============================================================================
-DOSSIER_RUN = r"C:\Document_UMONS\Thèse-Code\SI_side_repository\Runs\Quarter\Initial_Weekday\multiday_ep\Run_TD3_PyTorch_quarter_20261120_085033_EARLY_STOP_S1_TEST"  #Fichier où est stocké le modèle sauvegardé 
+DOSSIER_RUN = r"C:\Document_UMONS\Thèse-Code\SI_side_repository\Runs\Quarter\Initial_Weekday\multiday_ep\Run_TD3_PyTorch_quarter_20261126_095919_EARLY_STOP_S1_TEST"  #Fichier où est stocké le modèle sauvegardé 
+#DOSSIER_RUN = r"C:\Document_UMONS\Thèse-Code\SI_side_repository\Runs\Quarter\Initial_Weekday\dayly_ep\Run_TD3_PyTorch_quarter_20261126_084657_EARLY_STOP_S1_TEST"
 TXT_PATH = os.path.join(DOSSIER_RUN, "hyperparameters.txt")
 
 # %% =============================================================================
