@@ -284,7 +284,7 @@ class Agent(object):
         
         self.critic_scheduler = T.optim.lr_scheduler.ReduceLROnPlateau(
             self.critic.optimizer,
-            mode='max',        # 'min' si tu passes une loss/erreur à minimiser
+            mode='max',        
             factor=self.lr_factor,
             patience=self.lr_patience,
             min_lr=self.min_lr,
